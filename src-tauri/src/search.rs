@@ -210,10 +210,12 @@ pub async fn search_ytdlp(query: String) -> Result<Vec<SearchResult>, String> {
             if parts.len() < 5 {
                 return None;
             }
+            let id = parts[0].to_string();
+            let thumbnail_url = format!("https://img.youtube.com/vi/{}/mqdefault.jpg", id);
             Some(SearchResult {
-                id: parts[0].to_string(),
+                id,
                 title: parts[1].to_string(),
-                thumbnail_url: parts[2].to_string(),
+                thumbnail_url,
                 duration: parts[3].to_string(),
                 channel: parts[4].to_string(),
             })
@@ -263,11 +265,13 @@ pub async fn search(query: String, api_key: Option<String>) -> Result<SearchResp
             return Err(format!("Unexpected yt-dlp output format for URL: {}", line));
         }
 
+        let vid_id = parts[0].to_string();
+        let thumbnail_url = format!("https://img.youtube.com/vi/{}/mqdefault.jpg", vid_id);
         return Ok(SearchResponse {
             results: vec![SearchResult {
-                id: parts[0].to_string(),
+                id: vid_id,
                 title: parts[1].to_string(),
-                thumbnail_url: parts[2].to_string(),
+                thumbnail_url,
                 duration: parts[3].to_string(),
                 channel: parts[4].to_string(),
             }],
