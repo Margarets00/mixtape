@@ -13,7 +13,7 @@ Four phases, each delivering a coherent vertical slice. Phase 1 builds the engin
 Decimal phases appear between their surrounding integers in numeric order.
 
 - [x] **Phase 1: Download Engine** - Sidecar infrastructure + single-URL MP3 download working cross-platform (completed 2026-03-21)
-- [x] **Phase 2: Core UX** - Search, audio preview, cart-style queue — the full core loop (completed 2026-03-21)
+- [ ] **Phase 2: Core UX** - Search, audio preview, cart-style queue — the full core loop (gap closure in progress)
 - [ ] **Phase 3: Power Features** - Playlist support, filename templates, metadata editing, history
 - [ ] **Phase 4: Distribution** - Code signing, notarization, CI/CD build matrix, auto-updater
 
@@ -62,11 +62,12 @@ Plans:
 - Dual-mode search must be built from the start — API v3 primary, yt-dlp fallback — not added later.
 - Decision needed before implementation: confirm YouTube Data API v3 current quota (10,000 units/day) against Google Cloud Console.
 
-**Plans**: 2 plans
+**Plans**: 3 plans
 
 Plans:
 - [x] 02-01: Search + settings panel (dual-mode search, API key secure storage, result list UI with thumbnail/title/channel/duration, URL direct-load, yt-dlp fallback warning)
 - [x] 02-02: Audio preview + download queue (temp-file preview pipeline, play/pause/progress controls, cart-style queue UI, bounded concurrency semaphore, per-item state machine, 429 backoff + retry, cancel with cleanup)
+- [ ] 02-03: Gap closure — exponential backoff on 429 (30s/60s/120s retry loop in queue.rs, RetryWait event, countdown UI in QueueItem)
 
 ---
 
@@ -88,7 +89,7 @@ Plans:
 **Plans**: 2 plans
 
 Plans:
-- [ ] 03-01: Playlist support (URL input → metadata fetch → checklist UI → selective download via `--playlist-items`, "Download All" playlist option)
+- [ ] 03-01: Playlist support (URL input -> metadata fetch -> checklist UI -> selective download via `--playlist-items`, "Download All" playlist option)
 - [ ] 03-02: Filename templates + QoL (custom pattern input with live preview, "Show in Finder/Explorer" on completion, system notification on completion, thumbnail embedding via `--embed-thumbnail`)
 
 ---
@@ -121,12 +122,12 @@ Plans:
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 1 → 2 → 3 → 4
+Phases execute in numeric order: 1 -> 2 -> 3 -> 4
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Download Engine | 3/3 | Complete   | 2026-03-21 |
-| 2. Core UX | 2/2 | Complete   | 2026-03-21 |
+| 2. Core UX | 2/3 | Gap closure | - |
 | 3. Power Features | 0/2 | Not started | - |
 | 4. Distribution | 0/2 | Not started | - |
 
@@ -157,7 +158,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 | QUEUE-02 | Phase 2 | Download All |
 | QUEUE-03 | Phase 2 | Per-item state |
 | QUEUE-04 | Phase 2 | Bounded concurrency |
-| QUEUE-05 | Phase 2 | 429 backoff + retry |
+| QUEUE-05 | Phase 2 | 429 backoff + retry (gap closure: 02-03) |
 | QUEUE-06 | Phase 2 | Cancel per item |
 | PLAY-01 | Phase 3 | Playlist track list |
 | PLAY-02 | Phase 3 | Selective download |
@@ -173,4 +174,4 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 ---
 
 *Roadmap created: 2026-03-21*
-*Granularity: Coarse (4 phases, 9 plans total)*
+*Granularity: Coarse (4 phases, 10 plans total)*
