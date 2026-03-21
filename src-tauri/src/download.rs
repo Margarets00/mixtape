@@ -18,6 +18,11 @@ pub enum DownloadEvent {
     Error {
         message: String,
     },
+    RetryWait {
+        attempt: u32,
+        wait_secs: u64,
+        remaining_secs: u64,
+    },
 }
 
 /// Locate a sidecar binary adjacent to the current executable.
