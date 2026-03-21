@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: unknown
-stopped_at: Completed 03-power-features-02-PLAN.md
-last_updated: "2026-03-21T18:27:57.177Z"
+stopped_at: Completed 03-power-features-03-PLAN.md
+last_updated: "2026-03-21T18:35:29.479Z"
 progress:
   total_phases: 4
-  completed_phases: 2
+  completed_phases: 3
   total_plans: 9
-  completed_plans: 8
+  completed_plans: 9
 ---
 
 # Project State
@@ -55,6 +55,7 @@ Plan: 3 of 3
 | Phase 02-core-ux P03 | 3min | 2 tasks | 5 files |
 | Phase 03-power-features P01 | 2min | 2 tasks | 4 files |
 | Phase 03-power-features P02 | 2min | 2 tasks | 3 files |
+| Phase 03-power-features P03 | 5min | 3 tasks | 12 files |
 
 ## Accumulated Context
 
@@ -88,6 +89,9 @@ Recent decisions affecting current work:
 - [Phase 03-power-features]: PlaylistTrackEvent uses serde tag=type+content for discriminated union compatible with TS Channel typing
 - [Phase 03-power-features]: map_filename_pattern returns None for empty string — falls back to safe_title, no behavior change for existing users
 - [Phase 03-power-features]: embed_thumbnail defaults to true via unwrap_or(true) — new users get thumbnail embedding without explicit setting
+- [Phase 03-power-features]: History write uses snapshot of item data before channel callback — avoids stale closure from React state
+- [Phase 03-power-features]: Metadata overrides use yt-dlp --parse-metadata flag with :(?P<meta_title>...) syntax to inject ID3 tags
+- [Phase 03-power-features]: Notification permission guard: isPermissionGranted check before requestPermission — avoids repeated prompts
 
 ### Pending Todos
 
@@ -105,6 +109,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-21T18:27:57.175Z
-Stopped at: Completed 03-power-features-02-PLAN.md
+Last session: 2026-03-21T18:35:24.411Z
+Stopped at: Completed 03-power-features-03-PLAN.md
 Resume file: None

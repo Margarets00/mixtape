@@ -48,8 +48,8 @@
 
 ### Title & Filename
 
-- [ ] **TITLE-01**: 커스텀 파일명 패턴 지정 (예: `{artist} - {title}`)
-- [ ] **TITLE-02**: 파일명 패턴 라이브 미리보기
+- [x] **TITLE-01**: 커스텀 파일명 패턴 지정 (예: `{artist} - {title}`)
+- [x] **TITLE-02**: 파일명 패턴 라이브 미리보기
 
 ### UI
 
@@ -118,8 +118,8 @@
 | PLAY-01 | Phase 3 | Complete |
 | PLAY-02 | Phase 3 | Complete |
 | PLAY-03 | Phase 3 | Complete |
-| TITLE-01 | Phase 3 | Pending |
-| TITLE-02 | Phase 3 | Pending |
+| TITLE-01 | Phase 3 | Complete |
+| TITLE-02 | Phase 3 | Complete |
 | UI-03 | Phase 4 | Complete |
 
 **Coverage:**
