@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: unknown
-stopped_at: Completed 02-core-ux-02-PLAN.md
-last_updated: "2026-03-21T16:29:26.528Z"
+stopped_at: Completed 02-core-ux-03-PLAN.md
+last_updated: "2026-03-21T17:01:16.557Z"
 progress:
   total_phases: 4
   completed_phases: 2
-  total_plans: 5
-  completed_plans: 5
+  total_plans: 6
+  completed_plans: 6
 ---
 
 # Project State
@@ -24,7 +24,7 @@ See: .planning/PROJECT.md (updated 2026-03-21)
 ## Current Position
 
 Phase: 02 (core-ux) — EXECUTING
-Plan: 2 of 2
+Plan: 2 of 3
 
 ## Performance Metrics
 
@@ -52,6 +52,7 @@ Plan: 2 of 2
 | Phase 01-download-engine P03 | 30min | 3 tasks | 16 files |
 | Phase 02-core-ux P01 | 4min | 2 tasks | 13 files |
 | Phase 02-core-ux P02 | 4min | 2 tasks | 7 files |
+| Phase 02-core-ux P03 | 3min | 2 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -79,6 +80,8 @@ Recent decisions affecting current work:
 - [Phase 02-core-ux]: app.state::<AppState>() called inline in async commands to avoid Rust E0597 lifetime error with bound State<'_> variables
 - [Phase 02-core-ux]: OwnedSemaphorePermit moved into spawned task so semaphore slot is held for full download duration
 - [Phase 02-core-ux]: parse_yt_dlp_line made pub for queue.rs reuse; cancel_download skips .part cleanup since yt-dlp naming makes them harmless
+- [Phase 02-core-ux]: Stderr collected into Arc<Mutex<Vec<String>>> during queue download — retry loop inspects lines after process exits to detect 429 before deciding to retry or emit error
+- [Phase 02-core-ux]: Semaphore permit held across all retry attempts and backoff sleeps in queue_download — slot reserved for full retry lifecycle
 
 ### Pending Todos
 
@@ -96,6 +99,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-21T16:29:26.527Z
-Stopped at: Completed 02-core-ux-02-PLAN.md
+Last session: 2026-03-21T17:01:16.556Z
+Stopped at: Completed 02-core-ux-03-PLAN.md
 Resume file: None

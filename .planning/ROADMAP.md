@@ -67,7 +67,7 @@ Plans:
 Plans:
 - [x] 02-01: Search + settings panel (dual-mode search, API key secure storage, result list UI with thumbnail/title/channel/duration, URL direct-load, yt-dlp fallback warning)
 - [x] 02-02: Audio preview + download queue (temp-file preview pipeline, play/pause/progress controls, cart-style queue UI, bounded concurrency semaphore, per-item state machine, 429 backoff + retry, cancel with cleanup)
-- [ ] 02-03: Gap closure — exponential backoff on 429 (30s/60s/120s retry loop in queue.rs, RetryWait event, countdown UI in QueueItem)
+- [x] 02-03: Gap closure — exponential backoff on 429 (30s/60s/120s retry loop in queue.rs, RetryWait event, countdown UI in QueueItem)
 
 ---
 
