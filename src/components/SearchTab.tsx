@@ -178,7 +178,7 @@ export function SearchTab({ dispatch, queue, onPreview, onNavigateSettings }: Se
                 onPreview({
                   id: result.id,
                   title: result.title,
-                  audioUrl: '',
+                  audioUrl: `https://www.youtube.com/watch?v=${result.id}`,
                 })
               }
               onAddToQueue={() =>
