@@ -1,5 +1,6 @@
 use regex::Regex;
 use std::collections::HashMap;
+use tokio::io::AsyncBufReadExt;
 use tokio::process::Command;
 
 #[derive(serde::Serialize, serde::Deserialize, Clone)]
@@ -303,4 +304,89 @@ pub async fn search(query: String, api_key: Option<String>) -> Result<SearchResp
         results,
         used_fallback: true,
     })
+}
+
+/// Returns true only for playlist URLs (e.g. youtube.com/playlist?list=PLxxx).
+/// Does NOT match watch?v=X&list=Y — those are single-video URLs with playlist context.
+pub fn is_playlist_url(url: &str) -> bool {
+    url.contains("/playlist?list=") || (url.contains("/playlist?") && url.contains("list="))
+}
+
+#[derive(serde::Serialize, Clone)]
+#[serde(tag = "type", content = "data")]
+pub enum PlaylistTrackEvent {
+    Track {
+        id: String,
+        title: String,
+        thumbnail_url: String,
+        duration: String,
+        channel: String,
+    },
+    Done {
+        total: usize,
+    },
+    Error {
+        message: String,
+    },
+}
+
+/// Streams playlist track metadata via yt-dlp --flat-playlist --print.
+/// Sends a PlaylistTrackEvent::Track for each track found, then Done with total count.
+#[tauri::command]
+pub async fn search_playlist(
+    url: String,
+    on_track: tauri::ipc::Channel<PlaylistTrackEvent>,
+) -> Result<(), String> {
+    let ytdlp_path = crate::download::locate_sidecar("yt-dlp")?;
+
+    let mut child = tokio::process::Command::new(&ytdlp_path)
+        .args([
+            "--flat-playlist",
+            "--print",
+            "%(id)s\t%(title)s\t%(thumbnail)s\t%(duration_string)s\t%(channel)s",
+            "--no-warnings",
+        ])
+        .arg(&url)
+        .stdout(std::process::Stdio::piped())
+        .stderr(std::process::Stdio::piped())
+        .spawn()
+        .map_err(|e| format!("Failed to spawn yt-dlp: {}", e))?;
+
+    let stdout = child.stdout.take().unwrap();
+    let mut reader = tokio::io::BufReader::new(stdout).lines();
+    let mut count = 0usize;
+
+    while let Ok(Some(line)) = reader.next_line().await {
+        let parts: Vec<&str> = line.splitn(5, '\t').collect();
+        if parts.len() >= 2 {
+            let id = parts[0].to_string();
+            let title = parts.get(1).unwrap_or(&"").to_string();
+            let thumbnail_url = if parts.get(2).map_or(true, |t| t.is_empty() || *t == "NA") {
+                format!("https://img.youtube.com/vi/{}/mqdefault.jpg", id)
+            } else {
+                parts[2].to_string()
+            };
+            let duration = parts.get(3).unwrap_or(&"?").to_string();
+            let channel = parts.get(4).unwrap_or(&"").to_string();
+
+            let _ = on_track.send(PlaylistTrackEvent::Track {
+                id,
+                title,
+                thumbnail_url,
+                duration,
+                channel,
+            });
+            count += 1;
+        }
+    }
+
+    let status = child.wait().await.map_err(|e| format!("yt-dlp wait: {}", e))?;
+    if !status.success() && count == 0 {
+        let _ = on_track.send(PlaylistTrackEvent::Error {
+            message: "Failed to fetch playlist tracks".to_string(),
+        });
+    } else {
+        let _ = on_track.send(PlaylistTrackEvent::Done { total: count });
+    }
+    Ok(())
 }

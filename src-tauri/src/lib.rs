@@ -21,6 +21,7 @@ pub fn run() {
             updater::check_ytdlp_version,
             updater::update_ytdlp,
             search::search,
+            search::search_playlist,
             preview::preview_start,
             preview::preview_stop,
             queue::queue_download,
