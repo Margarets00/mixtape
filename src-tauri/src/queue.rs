@@ -8,12 +8,32 @@ fn is_rate_limit_error(line: &str) -> bool {
     line.contains("HTTP Error 429")
 }
 
+/// Maps user-facing filename pattern tokens to yt-dlp output template variables.
+/// Example: "{artist} - {title}" -> "%(artist)s - %(title)s"
+/// Returns None if pattern is empty (caller falls back to default behavior).
+fn map_filename_pattern(user_pattern: &str) -> Option<String> {
+    let trimmed = user_pattern.trim();
+    if trimmed.is_empty() {
+        return None;
+    }
+    Some(
+        trimmed
+            .replace("{title}", "%(title)s")
+            .replace("{artist}", "%(artist)s")
+            .replace("{channel}", "%(uploader)s")
+            .replace("{year}", "%(upload_date>%Y)s")
+            .replace("{track_num}", "%(playlist_index)s"),
+    )
+}
+
 #[tauri::command]
 pub async fn queue_download(
     app: tauri::AppHandle,
     item_id: String,
     video_url: String,
     save_dir: String,
+    filename_pattern: Option<String>,
+    embed_thumbnail: Option<bool>,
     on_event: tauri::ipc::Channel<crate::download::DownloadEvent>,
 ) -> Result<(), String> {
     // Acquire semaphore permit — blocks if 2 downloads already running (QUEUE-04)
@@ -47,7 +67,10 @@ pub async fn queue_download(
     let cleaned_title = crate::title::clean_title(&raw_title);
     let safe_title = crate::title::sanitize_filename(&cleaned_title);
     let output_path = format!("{}/{}.mp3", save_dir, safe_title);
-    let output_template = format!("{}/{}.%(ext)s", save_dir, safe_title);
+    let output_template = match filename_pattern.as_deref().and_then(map_filename_pattern) {
+        Some(mapped) => format!("{}/{}.%(ext)s", save_dir, mapped),
+        None => format!("{}/{}.%(ext)s", save_dir, safe_title),
+    };
 
     // Move into spawned task — permit held for full download + retry duration
     let item_id_clone = item_id.clone();
@@ -57,6 +80,14 @@ pub async fn queue_download(
         let mut attempt: u32 = 0;
 
         loop {
+            // Thumbnail embedding flags (META-02, D-12, D-13) -- built per-attempt
+            let mut extra_args: Vec<String> = Vec::new();
+            if embed_thumbnail.unwrap_or(true) {
+                extra_args.push("--embed-thumbnail".to_string());
+                extra_args.push("--convert-thumbnails".to_string());
+                extra_args.push("jpg".to_string());
+            }
+
             // Spawn yt-dlp download process for this attempt
             let mut child = match tokio::process::Command::new(&ytdlp_path)
                 .args([
@@ -75,6 +106,7 @@ pub async fn queue_download(
                     &output_template,
                     &video_url,
                 ])
+                .args(&extra_args)
                 .stdout(std::process::Stdio::piped())
                 .stderr(std::process::Stdio::piped())
                 .spawn()
