@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: unknown
-stopped_at: "Checkpoint: Task 3 human-verify in 01-03-PLAN.md"
-last_updated: "2026-03-21T13:37:50.390Z"
+stopped_at: Completed 01-03-PLAN.md — Phase 01 download-engine complete
+last_updated: "2026-03-21T14:34:31.123Z"
 progress:
   total_phases: 4
   completed_phases: 1
@@ -49,6 +49,7 @@ Plan: 3 of 3
 | Phase 01-download-engine P01 | 5 | 2 tasks | 22 files |
 | Phase 01-download-engine P02 | 3min | 2 tasks | 5 files |
 | Phase 01-download-engine P03 | 4min | 2 tasks | 12 files |
+| Phase 01-download-engine P03 | 30min | 3 tasks | 16 files |
 
 ## Accumulated Context
 
@@ -67,6 +68,9 @@ Recent decisions affecting current work:
 - [Phase 01-download-engine]: Both stdout and stderr must be read from yt-dlp since progress moved to stderr (~2022 change)
 - [Phase 01-download-engine]: StoreOptions in plugin-store 2.4.2 requires defaults field; used defaults:{} instead of autoSave:true
 - [Phase 01-download-engine]: Two-step yt-dlp: --print title before download enables deterministic Done path without parsing yt-dlp output
+- [Phase 01-download-engine]: locate_sidecar() uses current_exe().parent() — Tauri dev-mode resolution looks for binaries/yt-dlp-{triple} in target/debug/ which doesn't exist; this approach works in both dev and prod
+- [Phase 01-download-engine]: ffmpeg bundled via download-sidecars.sh now prefers system ffmpeg on macOS to avoid x86_64/arm64 mismatch; falls back to evermeet.cx with warning
+- [Phase 01-download-engine]: Playlist URLs detected by list= or /playlist in URL; skip blocking title fetch and use %(playlist_index)02d - %(title)s output template
 
 ### Pending Todos
 
@@ -84,6 +88,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-21T13:37:50.389Z
-Stopped at: Checkpoint: Task 3 human-verify in 01-03-PLAN.md
+Last session: 2026-03-21T14:34:31.122Z
+Stopped at: Completed 01-03-PLAN.md — Phase 01 download-engine complete
 Resume file: None
