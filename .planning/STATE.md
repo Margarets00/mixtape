@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: unknown
-stopped_at: Completed 02-core-ux-03-PLAN.md
-last_updated: "2026-03-21T17:16:26.517Z"
+stopped_at: Completed 03-power-features-01-PLAN.md
+last_updated: "2026-03-21T18:24:30.980Z"
 progress:
   total_phases: 4
   completed_phases: 2
-  total_plans: 6
-  completed_plans: 6
+  total_plans: 9
+  completed_plans: 7
 ---
 
 # Project State
@@ -19,12 +19,12 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-21)
 
 **Core value:** 유튜브 음악을 검색 → 미리듣기 → 골라담기 → 한 방에 MP3 저장 — 이 흐름이 끊기지 않아야 한다.
-**Current focus:** Phase 02 — core-ux
+**Current focus:** Phase 03 — power-features
 
 ## Current Position
 
-Phase: 3
-Plan: Not started
+Phase: 03 (power-features) — EXECUTING
+Plan: 2 of 3
 
 ## Performance Metrics
 
@@ -53,6 +53,7 @@ Plan: Not started
 | Phase 02-core-ux P01 | 4min | 2 tasks | 13 files |
 | Phase 02-core-ux P02 | 4min | 2 tasks | 7 files |
 | Phase 02-core-ux P03 | 3min | 2 tasks | 5 files |
+| Phase 03-power-features P01 | 2min | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -82,6 +83,8 @@ Recent decisions affecting current work:
 - [Phase 02-core-ux]: parse_yt_dlp_line made pub for queue.rs reuse; cancel_download skips .part cleanup since yt-dlp naming makes them harmless
 - [Phase 02-core-ux]: Stderr collected into Arc<Mutex<Vec<String>>> during queue download — retry loop inspects lines after process exits to detect 429 before deciding to retry or emit error
 - [Phase 02-core-ux]: Semaphore permit held across all retry attempts and backoff sleeps in queue_download — slot reserved for full retry lifecycle
+- [Phase 03-power-features]: is_playlist_url only matches /playlist?list= — watch URLs handled as single-video
+- [Phase 03-power-features]: PlaylistTrackEvent uses serde tag=type+content for discriminated union compatible with TS Channel typing
 
 ### Pending Todos
 
@@ -99,6 +102,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-21T17:01:16.556Z
-Stopped at: Completed 02-core-ux-03-PLAN.md
+Last session: 2026-03-21T18:24:30.978Z
+Stopped at: Completed 03-power-features-01-PLAN.md
 Resume file: None

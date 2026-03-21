@@ -91,7 +91,7 @@ Plans:
 **Plans**: 3 plans
 
 Plans:
-- [ ] 03-01-PLAN.md — Playlist support (streaming track fetch via yt-dlp --flat-playlist, checkbox UI, select/deselect all, add selected to queue)
+- [x] 03-01-PLAN.md — Playlist support (streaming track fetch via yt-dlp --flat-playlist, checkbox UI, select/deselect all, add selected to queue)
 - [ ] 03-02-PLAN.md — Filename templates + thumbnail embed (custom pattern in Settings with live preview, --embed-thumbnail toggle, queue_download pipeline extension)
 - [ ] 03-03-PLAN.md — Metadata editor + History + QoL (inline metadata editor on queue items, HISTORY tab with dedup badges, notification + opener plugins, Show in Finder button)
 
@@ -131,7 +131,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4
 |-------|----------------|--------|-----------|
 | 1. Download Engine | 3/3 | Complete   | 2026-03-21 |
 | 2. Core UX | 3/3 | Complete    | 2026-03-21 |
-| 3. Power Features | 0/3 | Not started | - |
+| 3. Power Features | 1/3 | In Progress|  |
 | 4. Distribution | 0/2 | Not started | - |
 
 ---

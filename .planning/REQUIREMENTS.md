@@ -42,9 +42,9 @@
 
 ### Playlist
 
-- [ ] **PLAY-01**: 플레이리스트 URL 입력 시 전체 트랙 목록 표시
-- [ ] **PLAY-02**: 플레이리스트에서 개별 곡 선택/해제 후 선택 항목만 다운로드
-- [ ] **PLAY-03**: 플레이리스트 전체 다운로드 옵션
+- [x] **PLAY-01**: 플레이리스트 URL 입력 시 전체 트랙 목록 표시
+- [x] **PLAY-02**: 플레이리스트에서 개별 곡 선택/해제 후 선택 항목만 다운로드
+- [x] **PLAY-03**: 플레이리스트 전체 다운로드 옵션
 
 ### Title & Filename
 
@@ -115,9 +115,9 @@
 | QUEUE-04 | Phase 2 | Complete |
 | QUEUE-05 | Phase 2 | Complete |
 | QUEUE-06 | Phase 2 | Complete |
-| PLAY-01 | Phase 3 | Pending |
-| PLAY-02 | Phase 3 | Pending |
-| PLAY-03 | Phase 3 | Pending |
+| PLAY-01 | Phase 3 | Complete |
+| PLAY-02 | Phase 3 | Complete |
+| PLAY-03 | Phase 3 | Complete |
 | TITLE-01 | Phase 3 | Pending |
 | TITLE-02 | Phase 3 | Pending |
 | UI-03 | Phase 4 | Complete |
