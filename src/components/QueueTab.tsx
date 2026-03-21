@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { invoke, Channel } from '@tauri-apps/api/core';
 import { load } from '@tauri-apps/plugin-store';
-import type { QueueAction, QueueItem } from '../App';
+import type { QueueAction, QueueItem, HistoryEntry } from '../App';
 import { QueueItemRow } from './QueueItem';
 
 interface DownloadEvent {
@@ -25,7 +25,42 @@ interface QueueTabProps {
   onHistoryUpdate?: () => void;
 }
 
-export function QueueTab({ queue, dispatch, onNavigateSettings, onHistoryUpdate: _onHistoryUpdate }: QueueTabProps) {
+async function addToHistory(item: QueueItem, filePath: string) {
+  const store = await load('download-history.json', { defaults: {} });
+  const entries: HistoryEntry[] = (await store.get<HistoryEntry[]>('entries')) || [];
+
+  const newEntry: HistoryEntry = {
+    videoId: item.id,
+    title: item.title,
+    channelName: item.channelName,
+    thumbnailUrl: item.thumbnailUrl,
+    downloadedAt: new Date().toISOString(),
+    filePath: filePath,
+  };
+
+  // Prepend new entry, cap at 500 entries (per RESEARCH recommendation)
+  const updated = [newEntry, ...entries.filter((e) => e.videoId !== item.id)].slice(0, 500);
+  await store.set('entries', updated);
+  await store.save();
+}
+
+async function notifyDownloadComplete(title: string) {
+  try {
+    const { isPermissionGranted, requestPermission, sendNotification } = await import('@tauri-apps/plugin-notification');
+    let granted = await isPermissionGranted();
+    if (!granted) {
+      const result = await requestPermission();
+      granted = result === 'granted';
+    }
+    if (granted) {
+      sendNotification({ title: 'Download Complete', body: title });
+    }
+  } catch (e) {
+    console.error('Notification failed:', e);
+  }
+}
+
+export function QueueTab({ queue, dispatch, onNavigateSettings, onHistoryUpdate }: QueueTabProps) {
   const [saveDir, setSaveDir] = useState('');
   const [isDownloading, setIsDownloading] = useState(false);
 
@@ -51,6 +86,10 @@ export function QueueTab({ queue, dispatch, onNavigateSettings, onHistoryUpdate:
     const filenamePattern = await settingsStore.get<string | null>('filename_pattern');
     const embedThumbnail = await settingsStore.get<boolean | null>('embed_thumbnail');
 
+    // Snapshot item data before channel callback (avoid stale closure capture)
+    const itemData = { ...item };
+    const itemTitle = item.title;
+
     onEvent.onmessage = (event: DownloadEvent) => {
       switch (event.type) {
         case 'Progress':
@@ -71,13 +110,24 @@ export function QueueTab({ queue, dispatch, onNavigateSettings, onHistoryUpdate:
             status: { type: 'converting' },
           });
           break;
-        case 'Done':
+        case 'Done': {
+          const filePath = event.data?.path ?? '';
           dispatch({
             type: 'UPDATE_STATUS',
             id: item.id,
-            status: { type: 'done', path: event.data?.path ?? '' },
+            status: { type: 'done', path: filePath },
           });
+
+          // Write to history (HIST-01, D-16)
+          addToHistory(itemData, filePath).catch(console.error);
+
+          // System notification (QOL-02, D-18)
+          notifyDownloadComplete(itemTitle).catch(console.error);
+
+          // Notify parent to refresh downloadedIds for DOWNLOADED badge
+          onHistoryUpdate?.();
           break;
+        }
         case 'Error':
           dispatch({
             type: 'UPDATE_STATUS',
