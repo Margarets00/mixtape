@@ -2,11 +2,25 @@ import { useState, useEffect } from 'react';
 import { open } from '@tauri-apps/plugin-dialog';
 import { load } from '@tauri-apps/plugin-store';
 
+function previewFilename(pattern: string): string {
+  if (!pattern.trim()) return 'Bohemian Rhapsody.mp3';
+  return (
+    pattern
+      .replace('{title}', 'Bohemian Rhapsody')
+      .replace('{artist}', 'Queen')
+      .replace('{channel}', 'Queen Official')
+      .replace('{year}', '1975')
+      .replace('{track_num}', '03') + '.mp3'
+  );
+}
+
 export function SettingsTab() {
   const [apiKey, setApiKey] = useState('');
   const [showKey, setShowKey] = useState(false);
   const [savedConfirm, setSavedConfirm] = useState(false);
   const [saveDir, setSaveDir] = useState('');
+  const [filenamePattern, setFilenamePattern] = useState('');
+  const [embedThumbnail, setEmbedThumbnail] = useState(true);
 
   useEffect(() => {
     (async () => {
@@ -15,6 +29,10 @@ export function SettingsTab() {
       if (key) setApiKey(key);
       const dir = await store.get<string | null>('lastSaveDir');
       if (dir) setSaveDir(dir);
+      const pattern = await store.get<string | null>('filename_pattern');
+      if (pattern) setFilenamePattern(pattern);
+      const thumb = await store.get<boolean | null>('embed_thumbnail');
+      if (thumb !== null && thumb !== undefined) setEmbedThumbnail(thumb);
     })();
   }, []);
 
@@ -34,6 +52,19 @@ export function SettingsTab() {
       await store.set('lastSaveDir', selected);
       await store.save();
     }
+  };
+
+  const handleSavePattern = async () => {
+    const store = await load('app-settings.json', { defaults: {} });
+    await store.set('filename_pattern', filenamePattern);
+    await store.save();
+  };
+
+  const handleToggleThumbnail = async (checked: boolean) => {
+    setEmbedThumbnail(checked);
+    const store = await load('app-settings.json', { defaults: {} });
+    await store.set('embed_thumbnail', checked);
+    await store.save();
   };
 
   const displayPath = saveDir
@@ -103,7 +134,7 @@ export function SettingsTab() {
       </div>
 
       {/* Folder picker section */}
-      <div>
+      <div style={{ marginBottom: '32px' }}>
         <div
           style={{
             fontFamily: 'var(--font-display)',
@@ -134,6 +165,92 @@ export function SettingsTab() {
         >
           PICK FOLDER
         </button>
+      </div>
+
+      {/* Filename Pattern section */}
+      <div style={{ marginBottom: '32px' }}>
+        <div
+          style={{
+            fontFamily: 'var(--font-display)',
+            fontSize: '10px',
+            marginBottom: '8px',
+            color: 'var(--color-black)',
+          }}
+        >
+          FILENAME PATTERN
+        </div>
+        <div style={{ display: 'flex', gap: '8px', marginBottom: '8px' }}>
+          <input
+            type="text"
+            value={filenamePattern}
+            onChange={(e) => setFilenamePattern(e.target.value)}
+            placeholder="{artist} - {title}"
+            style={{ flex: 1 }}
+          />
+        </div>
+        <div
+          style={{
+            fontFamily: 'var(--font-body)',
+            fontSize: '14px',
+            color: 'var(--color-blue-dark)',
+            marginBottom: '4px',
+          }}
+        >
+          Available: {'{title}'}, {'{artist}'}, {'{channel}'}, {'{year}'}, {'{track_num}'}
+        </div>
+        <div
+          style={{
+            fontFamily: 'var(--font-body)',
+            fontSize: '14px',
+            color: 'var(--color-pink-dark)',
+            fontStyle: 'italic',
+            marginBottom: '8px',
+          }}
+        >
+          Preview: {previewFilename(filenamePattern)}
+        </div>
+        <button
+          type="button"
+          onClick={handleSavePattern}
+          style={{
+            fontFamily: 'var(--font-display)',
+            fontSize: '10px',
+          }}
+        >
+          SAVE PATTERN
+        </button>
+      </div>
+
+      {/* Thumbnail Embed section */}
+      <div>
+        <div
+          style={{
+            fontFamily: 'var(--font-display)',
+            fontSize: '10px',
+            marginBottom: '8px',
+            color: 'var(--color-black)',
+          }}
+        >
+          EMBED THUMBNAIL
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
+          <input
+            type="checkbox"
+            checked={embedThumbnail}
+            onChange={(e) => handleToggleThumbnail(e.target.checked)}
+            id="embed-thumbnail-toggle"
+          />
+          <label
+            htmlFor="embed-thumbnail-toggle"
+            style={{
+              fontFamily: 'var(--font-body)',
+              fontSize: '14px',
+              color: 'var(--color-blue-dark)',
+            }}
+          >
+            Embed YouTube thumbnail as album art in MP3
+          </label>
+        </div>
       </div>
     </div>
   );

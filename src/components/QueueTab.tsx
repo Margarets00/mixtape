@@ -46,6 +46,9 @@ export function QueueTab({ queue, dispatch, onNavigateSettings }: QueueTabProps)
   const downloadItem = async (item: QueueItem) => {
     const videoUrl = `https://www.youtube.com/watch?v=${item.id}`;
     const onEvent = new Channel<DownloadEvent>();
+    const settingsStore = await load('app-settings.json', { defaults: {} });
+    const filenamePattern = await settingsStore.get<string | null>('filename_pattern');
+    const embedThumbnail = await settingsStore.get<boolean | null>('embed_thumbnail');
 
     onEvent.onmessage = (event: DownloadEvent) => {
       switch (event.type) {
@@ -100,6 +103,8 @@ export function QueueTab({ queue, dispatch, onNavigateSettings }: QueueTabProps)
       itemId: item.id,
       videoUrl,
       saveDir,
+      filenamePattern: filenamePattern || null,
+      embedThumbnail: embedThumbnail !== null ? embedThumbnail : true,
       onEvent,
     });
   };
