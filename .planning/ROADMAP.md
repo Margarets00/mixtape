@@ -74,23 +74,26 @@ Plans:
 ### Phase 3: Power Features
 **Goal**: A user can load a full playlist and select tracks to download, define a custom filename pattern, edit track metadata before saving, and see their download history with dedup protection.
 **Depends on**: Phase 2
-**Requirements**: PLAY-01, PLAY-02, PLAY-03, TITLE-01, TITLE-02
+**Requirements**: PLAY-01, PLAY-02, PLAY-03, TITLE-01, TITLE-02, META-01, META-02, HIST-01, QOL-01, QOL-02
 **Success Criteria** (what must be TRUE):
   1. User pastes a playlist URL, sees the full track list with checkboxes, selects a subset, and only the selected tracks are downloaded.
   2. User sets a filename pattern like `{artist} - {title}` and sees a live preview update before downloading.
   3. App correctly handles playlists with 50+ tracks without freezing (async metadata fetch with loading skeleton).
-
-**Note on v2 requirements in this phase:** META-01 (metadata editor), META-02 (thumbnail embed), HIST-01 (download history), QOL-01 (Show in Finder), and QOL-02 (system notification) are currently classified as v2 in REQUIREMENTS.md. They are natural additions here given the phase's scope and the research recommendation. They will be promoted to v1 at the start of Phase 3 planning if the user confirms.
+  4. User can edit title, artist, album on pending queue items before downloading.
+  5. Downloaded MP3s have embedded thumbnails by default (toggleable in Settings).
+  6. HISTORY tab shows previously downloaded tracks; search results show DOWNLOADED badge for already-downloaded items.
+  7. Completed downloads trigger a system notification and show a "Show in Finder" button.
 
 **Risks:**
 - Playlist metadata fetch for 100+ track playlists can be slow — skeleton loading UI required, not a blocking wait.
-- `--playlist-items` flag syntax must be verified against current yt-dlp docs before implementation.
+- `--parse-metadata` literal override syntax requires special character escaping — test with edge-case titles.
 
-**Plans**: 2 plans
+**Plans**: 3 plans
 
 Plans:
-- [ ] 03-01: Playlist support (URL input -> metadata fetch -> checklist UI -> selective download via `--playlist-items`, "Download All" playlist option)
-- [ ] 03-02: Filename templates + QoL (custom pattern input with live preview, "Show in Finder/Explorer" on completion, system notification on completion, thumbnail embedding via `--embed-thumbnail`)
+- [ ] 03-01-PLAN.md — Playlist support (streaming track fetch via yt-dlp --flat-playlist, checkbox UI, select/deselect all, add selected to queue)
+- [ ] 03-02-PLAN.md — Filename templates + thumbnail embed (custom pattern in Settings with live preview, --embed-thumbnail toggle, queue_download pipeline extension)
+- [ ] 03-03-PLAN.md — Metadata editor + History + QoL (inline metadata editor on queue items, HISTORY tab with dedup badges, notification + opener plugins, Show in Finder button)
 
 ---
 
@@ -127,8 +130,8 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Download Engine | 3/3 | Complete   | 2026-03-21 |
-| 2. Core UX | 2/3 | Complete    | 2026-03-21 |
-| 3. Power Features | 0/2 | Not started | - |
+| 2. Core UX | 3/3 | Complete    | 2026-03-21 |
+| 3. Power Features | 0/3 | Not started | - |
 | 4. Distribution | 0/2 | Not started | - |
 
 ---
@@ -160,18 +163,24 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4
 | QUEUE-04 | Phase 2 | Bounded concurrency |
 | QUEUE-05 | Phase 2 | 429 backoff + retry (gap closure: 02-03) |
 | QUEUE-06 | Phase 2 | Cancel per item |
-| PLAY-01 | Phase 3 | Playlist track list |
-| PLAY-02 | Phase 3 | Selective download |
-| PLAY-03 | Phase 3 | Playlist download all |
-| TITLE-01 | Phase 3 | Custom filename pattern |
-| TITLE-02 | Phase 3 | Live pattern preview |
+| PLAY-01 | Phase 3 | Playlist track list (03-01) |
+| PLAY-02 | Phase 3 | Selective download (03-01) |
+| PLAY-03 | Phase 3 | Playlist download all (03-01) |
+| TITLE-01 | Phase 3 | Custom filename pattern (03-02) |
+| TITLE-02 | Phase 3 | Live pattern preview (03-02) |
+| META-01 | Phase 3 | Metadata editor (03-03, promoted from v2) |
+| META-02 | Phase 3 | Thumbnail embed (03-02, promoted from v2) |
+| HIST-01 | Phase 3 | Download history + dedup (03-03, promoted from v2) |
+| QOL-01 | Phase 3 | Show in Finder (03-03, promoted from v2) |
+| QOL-02 | Phase 3 | System notification (03-03, promoted from v2) |
 | UI-01 | Phase 1 | Y2K/retro UI established; applied throughout |
 | UI-02 | Phase 1 | Palette + fonts established; applied throughout |
 | UI-03 | Phase 4 | Cross-platform delivery |
 
-**v1 coverage: 30/30 requirements mapped. No orphans.**
+**v1 coverage: 35/35 requirements mapped (5 promoted from v2). No orphans.**
 
 ---
 
 *Roadmap created: 2026-03-21*
-*Granularity: Coarse (4 phases, 10 plans total)*
+*Last updated: 2026-03-22 — Phase 3 plans finalized, v2 requirements promoted*
+*Granularity: Coarse (4 phases, 11 plans total)*
