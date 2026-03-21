@@ -5,13 +5,16 @@ import type { QueueAction, QueueItem } from '../App';
 import { QueueItemRow } from './QueueItem';
 
 interface DownloadEvent {
-  type: 'Progress' | 'Postprocessing' | 'Done' | 'Error';
+  type: 'Progress' | 'Postprocessing' | 'Done' | 'Error' | 'RetryWait';
   data?: {
     percent?: number;
     speed?: string;
     eta?: string;
     path?: string;
     message?: string;
+    attempt?: number;
+    wait_secs?: number;
+    remaining_secs?: number;
   };
 }
 
@@ -76,6 +79,18 @@ export function QueueTab({ queue, dispatch, onNavigateSettings }: QueueTabProps)
             type: 'UPDATE_STATUS',
             id: item.id,
             status: { type: 'error', message: event.data?.message ?? 'Unknown error' },
+          });
+          break;
+        case 'RetryWait':
+          dispatch({
+            type: 'UPDATE_STATUS',
+            id: item.id,
+            status: {
+              type: 'retrying',
+              attempt: event.data?.attempt ?? 1,
+              waitSecs: event.data?.wait_secs ?? 30,
+              remainingSecs: event.data?.remaining_secs ?? 30,
+            },
           });
           break;
       }

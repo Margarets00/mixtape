@@ -20,6 +20,8 @@ export function QueueItemRow({ item, onCancel, onRetry }: QueueItemProps) {
         return 'rgba(183, 255, 216, 0.3)';
       case 'error':
         return 'rgba(255, 245, 183, 0.3)';
+      case 'retrying':
+        return 'rgba(183, 213, 255, 0.3)';
       default:
         return 'var(--color-white)';
     }
@@ -140,6 +142,18 @@ export function QueueItemRow({ item, onCancel, onRetry }: QueueItemProps) {
             </div>
           )}
 
+          {status.type === 'retrying' && (
+            <div
+              style={{
+                fontFamily: 'var(--font-body)',
+                fontSize: '18px',
+                color: 'var(--color-pink-dark)',
+              }}
+            >
+              {`Retrying in ${status.remainingSecs}s... (attempt ${status.attempt}/3)`}
+            </div>
+          )}
+
           {status.type === 'done' && (
             <>
               <div
@@ -183,7 +197,7 @@ export function QueueItemRow({ item, onCancel, onRetry }: QueueItemProps) {
         </div>
 
         {/* Action buttons */}
-        {(status.type === 'pending' || status.type === 'downloading') && (
+        {(status.type === 'pending' || status.type === 'downloading' || status.type === 'retrying') && (
           <button
             type="button"
             onClick={handleCancel}

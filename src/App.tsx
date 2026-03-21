@@ -15,7 +15,8 @@ export type QueueItemStatus =
   | { type: 'downloading'; percent: number; speed: string }
   | { type: 'converting' }
   | { type: 'done'; path: string }
-  | { type: 'error'; message: string };
+  | { type: 'error'; message: string }
+  | { type: 'retrying'; attempt: number; waitSecs: number; remainingSecs: number };
 
 export interface QueueItem {
   id: string;
