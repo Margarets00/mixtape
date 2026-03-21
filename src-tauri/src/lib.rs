@@ -1,6 +1,7 @@
 mod download;
 mod errors;
 mod state;
+mod title;
 mod updater;
 
 use tauri::Manager;

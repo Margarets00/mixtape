@@ -81,6 +81,27 @@ pub async fn download(
 ) -> Result<(), String> {
     let ffmpeg_path = resolve_sidecar_path(&app, "ffmpeg")?;
 
+    // Step 1: Get raw title (no download)
+    let title_output = app
+        .shell()
+        .sidecar("binaries/yt-dlp")
+        .map_err(|e| format!("Failed to create yt-dlp sidecar: {}", e))?
+        .args(["--print", "title", &url])
+        .output()
+        .await
+        .map_err(|e| format!("Failed to get title: {}", e))?;
+
+    let raw_title = String::from_utf8_lossy(&title_output.stdout)
+        .trim()
+        .to_string();
+    let cleaned_title = crate::title::clean_title(&raw_title);
+    let safe_title = crate::title::sanitize_filename(&cleaned_title);
+
+    // Construct deterministic output path
+    let output_path = format!("{}/{}.mp3", save_dir, safe_title);
+    let output_template = format!("{}/{}.%(ext)s", save_dir, safe_title);
+
+    // Step 2: Download with cleaned title as output filename
     let (mut rx, child) = app
         .shell()
         .sidecar("binaries/yt-dlp")
@@ -98,7 +119,7 @@ pub async fn download(
             "download:PROGRESS %(progress._percent)f %(progress._speed_str)s %(progress._eta_str)s",
             "--newline",
             "-o",
-            &format!("{}/%(title)s.%(ext)s", save_dir),
+            &output_template,
             &url,
         ])
         .spawn()
@@ -124,7 +145,12 @@ pub async fn download(
                     }
                 }
                 CommandEvent::Terminated(status) => {
-                    if status.code.unwrap_or(-1) != 0 {
+                    if status.code.unwrap_or(-1) == 0 {
+                        // Deterministic path — we control the -o template with safe_title
+                        let _ = on_event.send(DownloadEvent::Done {
+                            path: output_path,
+                        });
+                    } else {
                         let _ = on_event.send(DownloadEvent::Error {
                             message: format!(
                                 "yt-dlp exited with code {}",
