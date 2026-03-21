@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: unknown
-stopped_at: Completed 03-power-features-01-PLAN.md
-last_updated: "2026-03-21T18:24:30.980Z"
+stopped_at: Completed 03-power-features-02-PLAN.md
+last_updated: "2026-03-21T18:27:57.177Z"
 progress:
   total_phases: 4
   completed_phases: 2
   total_plans: 9
-  completed_plans: 7
+  completed_plans: 8
 ---
 
 # Project State
@@ -24,7 +24,7 @@ See: .planning/PROJECT.md (updated 2026-03-21)
 ## Current Position
 
 Phase: 03 (power-features) — EXECUTING
-Plan: 2 of 3
+Plan: 3 of 3
 
 ## Performance Metrics
 
@@ -54,6 +54,7 @@ Plan: 2 of 3
 | Phase 02-core-ux P02 | 4min | 2 tasks | 7 files |
 | Phase 02-core-ux P03 | 3min | 2 tasks | 5 files |
 | Phase 03-power-features P01 | 2min | 2 tasks | 4 files |
+| Phase 03-power-features P02 | 2min | 2 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -85,6 +86,8 @@ Recent decisions affecting current work:
 - [Phase 02-core-ux]: Semaphore permit held across all retry attempts and backoff sleeps in queue_download — slot reserved for full retry lifecycle
 - [Phase 03-power-features]: is_playlist_url only matches /playlist?list= — watch URLs handled as single-video
 - [Phase 03-power-features]: PlaylistTrackEvent uses serde tag=type+content for discriminated union compatible with TS Channel typing
+- [Phase 03-power-features]: map_filename_pattern returns None for empty string — falls back to safe_title, no behavior change for existing users
+- [Phase 03-power-features]: embed_thumbnail defaults to true via unwrap_or(true) — new users get thumbnail embedding without explicit setting
 
 ### Pending Todos
 
@@ -102,6 +105,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-21T18:24:30.978Z
-Stopped at: Completed 03-power-features-01-PLAN.md
+Last session: 2026-03-21T18:27:57.175Z
+Stopped at: Completed 03-power-features-02-PLAN.md
 Resume file: None
