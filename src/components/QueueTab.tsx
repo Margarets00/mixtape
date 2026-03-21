@@ -106,6 +106,7 @@ export function QueueTab({ queue, dispatch, onNavigateSettings, onHistoryUpdate:
       saveDir,
       filenamePattern: filenamePattern || null,
       embedThumbnail: embedThumbnail !== null ? embedThumbnail : true,
+      metadataOverrides: item.metadataOverrides || null,
       onEvent,
     });
   };
@@ -241,6 +242,7 @@ export function QueueTab({ queue, dispatch, onNavigateSettings, onHistoryUpdate:
             item={item}
             onCancel={handleCancel}
             onRetry={handleRetry}
+            onSetMetadata={(id, overrides) => dispatch({ type: 'SET_METADATA', id, overrides })}
           />
         ))}
       </div>

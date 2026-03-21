@@ -26,6 +26,13 @@ fn map_filename_pattern(user_pattern: &str) -> Option<String> {
     )
 }
 
+#[derive(serde::Deserialize)]
+pub struct MetadataOverride {
+    pub title: Option<String>,
+    pub artist: Option<String>,
+    pub album: Option<String>,
+}
+
 #[tauri::command]
 pub async fn queue_download(
     app: tauri::AppHandle,
@@ -34,6 +41,7 @@ pub async fn queue_download(
     save_dir: String,
     filename_pattern: Option<String>,
     embed_thumbnail: Option<bool>,
+    metadata_overrides: Option<MetadataOverride>,
     on_event: tauri::ipc::Channel<crate::download::DownloadEvent>,
 ) -> Result<(), String> {
     // Acquire semaphore permit — blocks if 2 downloads already running (QUEUE-04)
@@ -86,6 +94,22 @@ pub async fn queue_download(
                 extra_args.push("--embed-thumbnail".to_string());
                 extra_args.push("--convert-thumbnails".to_string());
                 extra_args.push("jpg".to_string());
+            }
+
+            // Metadata overrides (META-01, D-10) -- inject --parse-metadata flags
+            if let Some(ref overrides) = metadata_overrides {
+                if let Some(ref t) = overrides.title {
+                    extra_args.push("--parse-metadata".to_string());
+                    extra_args.push(format!(":(?P<meta_title>{})", t));
+                }
+                if let Some(ref a) = overrides.artist {
+                    extra_args.push("--parse-metadata".to_string());
+                    extra_args.push(format!(":(?P<meta_artist>{})", a));
+                }
+                if let Some(ref al) = overrides.album {
+                    extra_args.push("--parse-metadata".to_string());
+                    extra_args.push(format!(":(?P<meta_album>{})", al));
+                }
             }
 
             // Spawn yt-dlp download process for this attempt
