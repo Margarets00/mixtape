@@ -1,0 +1,15 @@
+:root {
+  --color-pink:       #FFB7D5;
+  --color-pink-dark:  #FF69B4;
+  --color-blue:       #B7DFFF;
+  --color-blue-dark:  #5BA4D4;
+  --color-green:      #B7FFD8;
+  --color-green-dark: #4CAF50;
+  --color-yellow:     #FFF5B7;
+  --color-white:      #FFFAFA;
+  --color-black:      #2D1B1B;
+  --font-display: 'Press Start 2P', monospace;
+  --font-body:    'VT323', monospace;
+  --border-style: 3px solid var(--color-pink-dark);
+  --shadow-retro: 4px 4px 0px var(--color-pink-dark);
+}
