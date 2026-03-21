@@ -1,8 +1,7 @@
+use std::process::Stdio;
 use tauri::Manager;
-use tauri_plugin_shell::ShellExt;
-use tauri_plugin_shell::process::CommandEvent;
-
-use crate::errors;
+use tokio::io::AsyncBufReadExt;
+use tokio::process::Command;
 
 #[derive(serde::Serialize, Clone)]
 #[serde(tag = "type", content = "data")]
@@ -21,14 +20,43 @@ pub enum DownloadEvent {
     },
 }
 
-fn resolve_sidecar_path(app: &tauri::AppHandle, name: &str) -> Result<String, String> {
-    app.path()
-        .resolve(
-            format!("binaries/{}", name),
-            tauri::path::BaseDirectory::Resource,
-        )
-        .map(|p| p.to_string_lossy().to_string())
-        .map_err(|e| format!("Failed to resolve {} path: {}", name, e))
+/// Locate a sidecar binary adjacent to the current executable.
+///
+/// In Tauri dev builds, sidecars are placed in `target/debug/` WITHOUT the
+/// target-triple suffix (e.g. `target/debug/yt-dlp`).
+/// In Tauri production bundles, they keep the triple suffix
+/// (e.g. `Contents/MacOS/yt-dlp-aarch64-apple-darwin`).
+pub fn locate_sidecar(name: &str) -> Result<std::path::PathBuf, String> {
+    let exe = std::env::current_exe().map_err(|e| format!("current_exe: {}", e))?;
+    let dir = exe.parent().ok_or("no parent dir for executable")?;
+
+    // Dev mode: no triple suffix
+    let simple = dir.join(name);
+    if simple.exists() {
+        return Ok(simple);
+    }
+
+    // Production mode: with compile-time target triple
+    let triple: &str = if cfg!(all(target_arch = "aarch64", target_os = "macos")) {
+        "aarch64-apple-darwin"
+    } else if cfg!(all(target_arch = "x86_64", target_os = "macos")) {
+        "x86_64-apple-darwin"
+    } else if cfg!(all(target_arch = "x86_64", target_os = "windows")) {
+        "x86_64-pc-windows-msvc"
+    } else if cfg!(all(target_arch = "x86_64", target_os = "linux")) {
+        "x86_64-unknown-linux-gnu"
+    } else {
+        ""
+    };
+
+    if !triple.is_empty() {
+        let with_triple = dir.join(format!("{}-{}", name, triple));
+        if with_triple.exists() {
+            return Ok(with_triple);
+        }
+    }
+
+    Err(format!("sidecar '{}' not found in {:?}", name, dir))
 }
 
 fn parse_yt_dlp_line(line: &str) -> Option<DownloadEvent> {
@@ -47,11 +75,10 @@ fn parse_yt_dlp_line(line: &str) -> Option<DownloadEvent> {
         return Some(DownloadEvent::Postprocessing);
     }
     if line.contains("ERROR:") {
-        if let Some(msg) = errors::parse_ytdlp_error(line) {
+        if let Some(msg) = crate::errors::parse_ytdlp_error(line) {
             return Some(DownloadEvent::Error { message: msg });
         }
     }
-    // Check other specific error patterns (non-ERROR: prefixed)
     if line.contains("HTTP Error 429")
         || line.contains("HTTP Error 403")
         || line.contains("Video unavailable")
@@ -65,7 +92,7 @@ fn parse_yt_dlp_line(line: &str) -> Option<DownloadEvent> {
         || line.contains("is not a valid URL")
         || line.contains("Unsupported URL")
     {
-        if let Some(msg) = errors::parse_ytdlp_error(line) {
+        if let Some(msg) = crate::errors::parse_ytdlp_error(line) {
             return Some(DownloadEvent::Error { message: msg });
         }
     }
@@ -79,33 +106,39 @@ pub async fn download(
     save_dir: String,
     on_event: tauri::ipc::Channel<DownloadEvent>,
 ) -> Result<(), String> {
-    let ffmpeg_path = resolve_sidecar_path(&app, "ffmpeg")?;
+    let ytdlp_path = locate_sidecar("yt-dlp")?;
+    let ffmpeg_path = locate_sidecar("ffmpeg")?;
+    let ffmpeg_str = ffmpeg_path.to_string_lossy().to_string();
 
-    // Step 1: Get raw title (no download)
-    let title_output = app
-        .shell()
-        .sidecar("binaries/yt-dlp")
-        .map_err(|e| format!("Failed to create yt-dlp sidecar: {}", e))?
-        .args(["--print", "title", &url])
-        .output()
-        .await
-        .map_err(|e| format!("Failed to get title: {}", e))?;
+    // Detect playlists: skip blocking title-fetch and use yt-dlp's own naming.
+    // For single videos we pre-fetch the title so we can clean noise words.
+    let is_playlist = url.contains("list=") || url.contains("/playlist");
 
-    let raw_title = String::from_utf8_lossy(&title_output.stdout)
-        .trim()
-        .to_string();
-    let cleaned_title = crate::title::clean_title(&raw_title);
-    let safe_title = crate::title::sanitize_filename(&cleaned_title);
+    let (output_template, output_path) = if is_playlist {
+        let template = format!("{}/%(playlist_index)02d - %(title)s.%(ext)s", save_dir);
+        let path = save_dir.clone(); // report the folder, not a single file
+        (template, path)
+    } else {
+        // Step 1: Get raw title (no download)
+        let title_output = Command::new(&ytdlp_path)
+            .args(["--print", "title", &url])
+            .output()
+            .await
+            .map_err(|e| format!("Failed to get title: {}", e))?;
 
-    // Construct deterministic output path
-    let output_path = format!("{}/{}.mp3", save_dir, safe_title);
-    let output_template = format!("{}/{}.%(ext)s", save_dir, safe_title);
+        let raw_title = String::from_utf8_lossy(&title_output.stdout)
+            .trim()
+            .to_string();
+        let cleaned_title = crate::title::clean_title(&raw_title);
+        let safe_title = crate::title::sanitize_filename(&cleaned_title);
 
-    // Step 2: Download with cleaned title as output filename
-    let (mut rx, child) = app
-        .shell()
-        .sidecar("binaries/yt-dlp")
-        .map_err(|e| format!("Failed to create yt-dlp sidecar: {}", e))?
+        let path = format!("{}/{}.mp3", save_dir, safe_title);
+        let template = format!("{}/{}.%(ext)s", save_dir, safe_title);
+        (template, path)
+    };
+
+    // Step 2: Spawn download process with streaming output
+    let mut child = Command::new(&ytdlp_path)
         .args([
             "-x",
             "--audio-format",
@@ -114,7 +147,7 @@ pub async fn download(
             "0",
             "--embed-metadata",
             "--ffmpeg-location",
-            &ffmpeg_path,
+            &ffmpeg_str,
             "--progress-template",
             "download:PROGRESS %(progress._percent)f %(progress._speed_str)s %(progress._eta_str)s",
             "--newline",
@@ -122,46 +155,64 @@ pub async fn download(
             &output_template,
             &url,
         ])
+        .stdout(Stdio::piped())
+        .stderr(Stdio::piped())
         .spawn()
         .map_err(|e| format!("Failed to spawn yt-dlp: {}", e))?;
 
-    // Store child handle in AppState for cleanup on app exit
-    {
+    // Store PID in AppState for cleanup on app exit
+    if let Some(pid) = child.id() {
         let state = app.state::<crate::state::AppState>();
-        let mut guard = state
-            .active_child
-            .lock()
-            .map_err(|e| e.to_string())?;
-        *guard = Some(child);
+        if let Ok(mut guard) = state.active_pid.lock() {
+            *guard = Some(pid);
+        };
     }
 
+    let stdout = child.stdout.take().unwrap();
+    let stderr = child.stderr.take().unwrap();
+
+    let on_event_stdout = on_event.clone();
+    let on_event_stderr = on_event.clone();
+
+    // Stream stdout (progress lines)
     tauri::async_runtime::spawn(async move {
-        while let Some(event) = rx.recv().await {
-            match event {
-                CommandEvent::Stdout(line) | CommandEvent::Stderr(line) => {
-                    let text = String::from_utf8_lossy(&line);
-                    if let Some(evt) = parse_yt_dlp_line(&text) {
-                        let _ = on_event.send(evt);
-                    }
+        let mut reader = tokio::io::BufReader::new(stdout).lines();
+        while let Ok(Some(line)) = reader.next_line().await {
+            if let Some(evt) = parse_yt_dlp_line(&line) {
+                let _ = on_event_stdout.send(evt);
+            }
+        }
+    });
+
+    // Stream stderr (error lines)
+    tauri::async_runtime::spawn(async move {
+        let mut reader = tokio::io::BufReader::new(stderr).lines();
+        while let Ok(Some(line)) = reader.next_line().await {
+            if let Some(evt) = parse_yt_dlp_line(&line) {
+                let _ = on_event_stderr.send(evt);
+            }
+        }
+    });
+
+    // Wait for process and emit Done/Error
+    tauri::async_runtime::spawn(async move {
+        match child.wait().await {
+            Ok(status) => {
+                if status.success() {
+                    let _ = on_event.send(DownloadEvent::Done { path: output_path });
+                } else {
+                    let _ = on_event.send(DownloadEvent::Error {
+                        message: format!(
+                            "yt-dlp exited with code {}",
+                            status.code().unwrap_or(-1)
+                        ),
+                    });
                 }
-                CommandEvent::Terminated(status) => {
-                    if status.code.unwrap_or(-1) == 0 {
-                        // Deterministic path — we control the -o template with safe_title
-                        let _ = on_event.send(DownloadEvent::Done {
-                            path: output_path,
-                        });
-                    } else {
-                        let _ = on_event.send(DownloadEvent::Error {
-                            message: format!(
-                                "yt-dlp exited with code {}",
-                                status.code.unwrap_or(-1)
-                            ),
-                        });
-                    }
-                    // Clear active child state
-                    break;
-                }
-                _ => {}
+            }
+            Err(e) => {
+                let _ = on_event.send(DownloadEvent::Error {
+                    message: format!("Failed to wait for yt-dlp: {}", e),
+                });
             }
         }
     });

@@ -22,13 +22,24 @@ pub fn run() {
         .expect("error while building tauri application")
         .run(|app, event| {
             if let tauri::RunEvent::Exit = event {
-                let state = app.state::<state::AppState>();
-                let child_opt = state.active_child.lock();
-                if let Ok(mut guard) = child_opt {
-                    if let Some(child) = guard.take() {
-                        let _ = child.kill();
-                    }
+                let pid_opt = {
+                    let state = app.state::<state::AppState>();
+                    state.active_pid.lock().ok().and_then(|g| *g)
                 };
+                if let Some(pid) = pid_opt {
+                    {
+                        #[cfg(unix)]
+                        unsafe {
+                            libc::kill(pid as libc::pid_t, libc::SIGTERM);
+                        }
+                        #[cfg(windows)]
+                        {
+                            let _ = std::process::Command::new("taskkill")
+                                .args(["/PID", &pid.to_string(), "/F"])
+                                .status();
+                        }
+                    }
+                }
             }
         });
 }
