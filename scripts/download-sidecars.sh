@@ -66,17 +66,25 @@ trap 'rm -rf "$TMP_DIR"' EXIT
 
 case "$TARGET_TRIPLE" in
   aarch64-apple-darwin | x86_64-apple-darwin)
-    # evermeet.cx provides a universal static macOS build
-    FFMPEG_ZIP="$TMP_DIR/ffmpeg.zip"
-    curl -fsSL -o "$FFMPEG_ZIP" \
-      "https://evermeet.cx/ffmpeg/getrelease/zip"
-    unzip -q "$FFMPEG_ZIP" -d "$TMP_DIR"
-    FFMPEG_BIN=$(find "$TMP_DIR" -maxdepth 2 -type f -name "ffmpeg" | head -1)
-    if [[ -z "$FFMPEG_BIN" ]]; then
-      echo "ERROR: ffmpeg binary not found in zip archive" >&2
-      exit 1
+    # Prefer system ffmpeg if available (avoids architecture mismatch on Apple Silicon)
+    if command -v ffmpeg &>/dev/null; then
+      echo "Using system ffmpeg: $(which ffmpeg)"
+      cp "$(which ffmpeg)" "$FFMPEG_OUT"
+    else
+      # Fallback: download from evermeet.cx (x86_64 only — use Homebrew on Apple Silicon)
+      echo "WARNING: No system ffmpeg found. Downloading from evermeet.cx (x86_64 only)."
+      echo "         On Apple Silicon, install ffmpeg via Homebrew: brew install ffmpeg"
+      FFMPEG_ZIP="$TMP_DIR/ffmpeg.zip"
+      curl -fsSL -o "$FFMPEG_ZIP" \
+        "https://evermeet.cx/ffmpeg/getrelease/zip"
+      unzip -q "$FFMPEG_ZIP" -d "$TMP_DIR"
+      FFMPEG_BIN=$(find "$TMP_DIR" -maxdepth 2 -type f -name "ffmpeg" | head -1)
+      if [[ -z "$FFMPEG_BIN" ]]; then
+        echo "ERROR: ffmpeg binary not found in zip archive" >&2
+        exit 1
+      fi
+      cp "$FFMPEG_BIN" "$FFMPEG_OUT"
     fi
-    cp "$FFMPEG_BIN" "$FFMPEG_OUT"
     ;;
   x86_64-pc-windows-msvc)
     FFMPEG_ZIP="$TMP_DIR/ffmpeg.zip"
