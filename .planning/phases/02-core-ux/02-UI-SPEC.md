@@ -55,21 +55,27 @@ Source: Phase 1 `App.tsx` inline styles (24px, 32px, 8px, 16px confirmed); remai
 
 ## Typography
 
+Four sizes declared. All fonts have only one weight (400) — size is the sole differentiator within each family.
+
 | Role | Font | Size | Weight | Line Height | Used For |
 |------|------|------|--------|-------------|----------|
-| Display | `var(--font-display)` = Press Start 2P | 14px | 400 (only weight available) | 1.6 | App title `h1` |
-| Heading | `var(--font-display)` = Press Start 2P | 12px | 400 | 1.4 | Tab labels, section headers, button text, badge text |
-| Body | `var(--font-body)` = VT323 | 20px | 400 | 1.4 | Track title, channel name, queue item text, settings labels |
-| Small | `var(--font-body)` = VT323 | 18px | 400 | 1.4 | Input fields, placeholder text, progress percentage, speed text, duration |
+| Display | `var(--font-display)` = Press Start 2P | 20px | 400 (only weight available) | 1.6 | App title `h1` |
+| Heading | `var(--font-display)` = Press Start 2P | 12px | 400 | 1.4 | Tab labels, section headers, button text, badge text, `[▶ PREVIEW]` and `[+ QUEUE]` buttons |
+| Body | `var(--font-body)` = VT323 | 20px | 400 | 1.4 | Track title, channel name, queue item text, settings labels, fallback warning banner |
+| Small | `var(--font-body)` = VT323 | 18px | 400 | 1.4 | Input fields, placeholder text, progress percentage, speed text, duration, error messages, subtitle/tagline, security notice, folder path display, player bar idle text |
 
 Rules:
 - Press Start 2P has only one weight (400). Do not declare bold or semibold for display/heading roles.
 - VT323 has only one weight (400). Size is the sole differentiator.
 - No italic — retro theme does not use italic.
 - All button text: `font-family: var(--font-display)`, `font-size: 12px`, `text-transform: uppercase` (matches Phase 1 `global.css`).
-- Subtitle/tagline (e.g., `~ retro vibes only ~`): `var(--font-body)` 22px, `var(--color-blue-dark)`.
+- Micro text (badge, tab label, cancel button, IN QUEUE badge): `var(--font-display)` 10px. This is a sub-role of Heading, not a fifth size — both use Press Start 2P.
+- Subtitle/tagline (e.g., `~ retro vibes only ~`): `var(--font-body)` 18px (Small role), `var(--color-blue-dark)`. Folded from prior 22px — 18px is sufficient for this ambient tagline at VT323's generous glyph width.
+- App title `h1`: `var(--font-display)` 20px (Display role). Increased from prior 14px to fit within the 4-size constraint. Press Start 2P at 20px remains visually distinct from VT323 20px body text by font family.
 
-Source: `src/styles/global.css` (body 20px, button 12px, input 18px), `src/App.tsx` (h1 14px, subtitle 22px).
+**Declared sizes (exactly 4):** 10px (micro sub-role of Heading), 12px (Heading), 18px (Small), 20px (Display + Body).
+
+Source: `src/styles/global.css` (body 20px, button 12px, input 18px), `src/App.tsx` (h1 and subtitle patterns). Sizes adjusted from Phase 1 baseline to satisfy 4-size constraint.
 
 ---
 
@@ -81,11 +87,11 @@ All values from `src/styles/theme.css`. No new colors may be introduced in Phase
 |------|----------|-----|-------|
 | Dominant (60%) | `--color-white` | `#FFFAFA` | App background, main surfaces |
 | Secondary (30%) | `--color-pink` | `#FFB7D5` | Card/panel backgrounds, tab bar background, search result row hover state, queue item background, player bar background |
-| Accent (10%) | `--color-pink-dark` | `#FF69B4` | Borders (`var(--border-style)`), shadows (`var(--shadow-retro)`), active tab indicator, `[▶ Preview]` button background |
+| Accent (10%) | `--color-pink-dark` | `#FF69B4` | Borders (`var(--border-style)`), shadows (`var(--shadow-retro)`), active tab indicator, `[▶ PREVIEW]` button background |
 | Info surface | `--color-blue` | `#B7DFFF` | Fallback warning banner background, "IN QUEUE" badge background, player bar track info background strip |
 | Info dark | `--color-blue-dark` | `#5BA4D4` | Subtitle text, info text within blue surfaces, player bar track title |
 | Success surface | `--color-green` | `#B7FFD8` | Done ✓ item background tint |
-| Success dark | `--color-green-dark` | `#4CAF50` | Done ✓ badge text, "Saved ✓" confirmation text |
+| Success dark | `--color-green-dark` | `#4CAF50` | Done ✓ badge text, "KEY SAVED ✓" confirmation text |
 | Caution | `--color-yellow` | `#FFF5B7` | 429 error state row background tint |
 | Destructive | `--color-black` | `#2D1B1B` | Body text, destructive action buttons (Cancel, Clear Done) |
 
@@ -93,7 +99,7 @@ Accent (`--color-pink-dark`) reserved for ONLY:
 1. All border rules via `var(--border-style)` (3px solid)
 2. All box-shadow rules via `var(--shadow-retro)` (4px 4px 0px)
 3. Active (selected) tab underline/indicator
-4. `[▶ Preview]` button background
+4. `[▶ PREVIEW]` button background
 5. App title `h1` text color
 6. `[RETRY]` button background (error recovery primary action)
 
@@ -120,7 +126,7 @@ New components required for Phase 2 (all must use existing CSS variables, no new
 | QueueTab | `src/components/QueueTab.tsx` | `Saving to:` header + [DOWNLOAD ALL] + [CLEAR DONE] + queue item list |
 | QueueItem | `src/components/QueueItem.tsx` | Per-row state machine: Pending / Downloading / Converting / Done / Error |
 | PlayerBar | `src/components/PlayerBar.tsx` | Fixed bottom bar: track title + [▶/■] button + progress scrubber |
-| SettingsTab | `src/components/SettingsTab.tsx` | API key masked input + eye toggle + [SAVE] + folder picker |
+| SettingsTab | `src/components/SettingsTab.tsx` | API key masked input + eye toggle + [SAVE API KEY] + folder picker |
 | ProgressBar | `src/components/ProgressBar.tsx` | EXISTING — reuse in QueueItem inline progress |
 | ErrorBanner | `src/components/ErrorBanner.tsx` | EXISTING — reuse in QueueTab for 429 row |
 
@@ -136,6 +142,10 @@ New components required for Phase 2 (all must use existing CSS variables, no new
 - QUEUE tab badge: show total queue item count (including Done items) as a superscript. Badge disappears when count = 0. Badge uses `--color-blue` background, `--font-display` 10px white text. (Discretion: total count chosen because Done items still occupy queue space the user can clear.)
 - Tab label font: `var(--font-display)`, 10px, uppercase.
 
+### Primary Focal Point
+
+Primary focal point on Search tab: the search input field, positioned immediately below the tab bar. All other elements (result list, idle state copy) are secondary.
+
 ### Player Bar (D-02, D-07)
 
 - **Idle state:** Player bar is always rendered at the bottom of the app. When no preview is active, it shows `~ no track playing ~` in `var(--font-body)` 18px, `--color-pink-dark` at 50% opacity. Height is 48px. This keeps the layout stable and signals the feature exists. (Discretion: always-visible chosen over hidden to prevent layout shift and reinforce retro "now playing" aesthetic.)
@@ -148,7 +158,7 @@ New components required for Phase 2 (all must use existing CSS variables, no new
 - Row hover: background `--color-pink` at 40% opacity. Cursor: default (not pointer — the buttons are the click targets).
 - `[▶ PREVIEW]` button: `--color-pink-dark` background, `--font-display` 10px. Always present.
 - `[+ QUEUE]` button: `--color-pink` background, `--font-display` 10px. Always present (even if IN QUEUE — decision D-08).
-- "IN QUEUE" badge: `--color-blue` background, `--font-display` 8px, uppercase text "IN QUEUE". Appears below track title when the track is in the queue. Does NOT replace `[+ QUEUE]` button.
+- "IN QUEUE" badge: `--color-blue` background, `--font-display` 10px, uppercase text "IN QUEUE". Appears below track title when the track is in the queue. Does NOT replace `[+ QUEUE]` button.
 - Row layout: `display: flex; gap: 8px; align-items: center; padding: 8px 16px; border-bottom: 1px solid var(--color-pink)`.
 
 ### Queue Item State Machine (D-10, D-11, D-12, D-13)
@@ -161,13 +171,13 @@ New components required for Phase 2 (all must use existing CSS variables, no new
 | Done ✓ | `--color-green` bg at 30%. `Done ✓` badge in `--color-green-dark`. Track title dimmed to 60% opacity. No cancel, no progress. |
 | Error | `--color-yellow` bg at 30%. Error message in `--color-black` body font 18px. `[RETRY]` button in `--color-pink-dark`. |
 
-- Cancel button (`[✕ CANCEL]`): `--font-display` 8px, `--color-black` background at 10% opacity (ghost style), `--color-black` border. No confirmation dialog — single click cancels. Partial file cleanup is handled by the Rust backend.
+- Cancel button (`[✕ CANCEL]`): `--font-display` 10px, `--color-black` background at 10% opacity (ghost style), `--color-black` border. No confirmation dialog — single click cancels. Partial file cleanup is handled by the Rust backend.
 - `[CLEAR DONE]` at queue top: `--color-pink` button, always visible. When no Done items exist, button is disabled (opacity 0.5, cursor not-allowed — matches Phase 1 `global.css` disabled pattern).
 - `[DOWNLOAD ALL]` at queue top: `--color-pink-dark` button (primary action), `--font-display` 12px. Disabled when queue is empty or all items are Done.
 
 ### Settings Panel (D-16, D-17, D-18)
 
-- API key input: `type="password"` by default. Eye icon button (`👁` unicode or text `[SHOW]`/`[HIDE]`) toggles `type` between `password` and `text`. `[SAVE]` button alongside. On save: button text changes to `SAVED ✓` in `--color-green-dark` for 2 seconds, then reverts.
+- API key input: `type="password"` by default. Eye icon button (`👁` unicode or text `[SHOW]`/`[HIDE]`) toggles `type` between `password` and `text`. `[SAVE API KEY]` button alongside. On save: button text changes to `KEY SAVED ✓` in `--color-green-dark` for 2 seconds, then reverts to `SAVE API KEY`.
 - Security notice below API key field: `var(--font-body)` 18px, `--color-black` at 60% opacity — text: `~ stored locally in plain text ~`
 - Folder picker: `[PICK FOLDER]` button. Selected path shown below in `var(--font-body)` 18px monospace.
 
@@ -186,6 +196,8 @@ New components required for Phase 2 (all must use existing CSS variables, no new
 |---------|------|
 | Primary CTA (queue) | `DOWNLOAD ALL` |
 | Primary CTA (search) | `SEARCH` |
+| API key save button (base state) | `SAVE API KEY` |
+| API key save button (confirmation) | `KEY SAVED ✓` (2 seconds, then reverts to `SAVE API KEY`) |
 | Search idle state heading | `~ search for tunes ~` |
 | Search idle state body | `type a song or artist name above` |
 | Search empty results | `~ no results found ~` |
@@ -199,7 +211,6 @@ New components required for Phase 2 (all must use existing CSS variables, no new
 | "IN QUEUE" badge | `IN QUEUE` |
 | Done badge | `DONE ✓` |
 | Fallback warning banner | `~ using yt-dlp fallback (no API key) ~` |
-| API key save confirmation | `SAVED ✓` (2 seconds, then reverts to `SAVE`) |
 | API key security notice | `~ stored locally in plain text ~` |
 | 429 error message | `RATE LIMITED · YouTube is throttling requests` |
 | 429 retry button | `RETRY` |
@@ -220,7 +231,7 @@ New components required for Phase 2 (all must use existing CSS variables, no new
 | Cancel individual download | `[✕ CANCEL]` button on queue row | No confirmation dialog — single click. Partial file cleanup is silent (backend handles it). Irreversibility is low: user can re-add track. |
 | Clear Done items | `[CLEAR DONE]` button | No confirmation dialog — Done items are already saved to disk; clearing only removes them from the queue list. Irreversibility is none. |
 
-Source: CONTEXT.md D-09 (idle copy directive), D-10 (progress overlay format), D-11 (state labels), D-12 (Clear Done), D-13 (RETRY), D-15 (Saving to header), D-16 (API key Saved ✓), D-18 (fallback banner copy).
+Source: CONTEXT.md D-09 (idle copy directive), D-10 (progress overlay format), D-11 (state labels), D-12 (Clear Done), D-13 (RETRY), D-15 (Saving to header), D-16 (API key save confirmation), D-18 (fallback banner copy).
 
 ---
 
@@ -232,7 +243,7 @@ Source: CONTEXT.md D-09 (idle copy directive), D-10 (progress overlay format), D
 | Button active | `transform: translate(4px, 4px); box-shadow: none` |
 | Tab switch | No transition (instant — retro feel) |
 | Converting state blink | `opacity` keyframe: 100% → 50% → 100%, 1s infinite |
-| SAVED ✓ reveal | No transition — instant text swap |
+| KEY SAVED ✓ reveal | No transition — instant text swap |
 | Player bar appear/disappear | No transition — instant (always rendered, content swaps) |
 
 ---
@@ -273,11 +284,11 @@ Phase 1's `DownloadForm` is REMOVED as a visible UI element (D-04). Its Rust-sid
 | 429 retry (no auto-retry) (D-13) | CONTEXT.md Decisions |
 | Download All skip-done (D-14) | CONTEXT.md Decisions |
 | Saving to header (D-15) | CONTEXT.md Decisions |
-| API key input + eye toggle + SAVED ✓ (D-16) | CONTEXT.md Decisions |
+| API key input + eye toggle + KEY SAVED ✓ (D-16) | CONTEXT.md Decisions |
 | Folder picker in Settings (D-17) | CONTEXT.md Decisions |
 | Fallback warning banner (D-18) | CONTEXT.md Decisions |
 | All color values | `src/styles/theme.css` (Phase 1) |
-| Typography sizes and families | `src/styles/global.css` + `src/App.tsx` (Phase 1) |
+| Typography sizes and families | `src/styles/global.css` + `src/App.tsx` (Phase 1), adjusted to 4-size constraint |
 | Button interaction states | `src/styles/global.css` (Phase 1) |
 | Spacing values (24px, 32px) | `src/App.tsx` (Phase 1) |
 | No new colors rule | CONTEXT.md Specifics |
