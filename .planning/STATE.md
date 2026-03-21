@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: unknown
-stopped_at: Completed 01-download-engine-02-PLAN.md - Rust download engine with yt-dlp sidecar and updater
-last_updated: "2026-03-21T13:31:46.411Z"
+stopped_at: "Checkpoint: Task 3 human-verify in 01-03-PLAN.md"
+last_updated: "2026-03-21T13:37:50.390Z"
 progress:
   total_phases: 4
-  completed_phases: 0
+  completed_phases: 1
   total_plans: 3
-  completed_plans: 2
+  completed_plans: 3
 ---
 
 # Project State
@@ -48,6 +48,7 @@ Plan: 3 of 3
 *Updated after each plan completion*
 | Phase 01-download-engine P01 | 5 | 2 tasks | 22 files |
 | Phase 01-download-engine P02 | 3min | 2 tasks | 5 files |
+| Phase 01-download-engine P03 | 4min | 2 tasks | 12 files |
 
 ## Accumulated Context
 
@@ -64,6 +65,8 @@ Recent decisions affecting current work:
 - [Phase 01-download-engine]: Folder persistence (ENG-04) is frontend-only via plugin-dialog + plugin-store; no Rust command needed
 - [Phase 01-download-engine]: yt-dlp update uses temp-file (.new) + fs::rename for atomic replace; never overwrites running binary directly
 - [Phase 01-download-engine]: Both stdout and stderr must be read from yt-dlp since progress moved to stderr (~2022 change)
+- [Phase 01-download-engine]: StoreOptions in plugin-store 2.4.2 requires defaults field; used defaults:{} instead of autoSave:true
+- [Phase 01-download-engine]: Two-step yt-dlp: --print title before download enables deterministic Done path without parsing yt-dlp output
 
 ### Pending Todos
 
@@ -81,6 +84,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-21T13:31:46.409Z
-Stopped at: Completed 01-download-engine-02-PLAN.md - Rust download engine with yt-dlp sidecar and updater
+Last session: 2026-03-21T13:37:50.389Z
+Stopped at: Checkpoint: Task 3 human-verify in 01-03-PLAN.md
 Resume file: None
