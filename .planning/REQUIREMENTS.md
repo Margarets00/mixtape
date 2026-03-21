@@ -8,7 +8,7 @@
 ### Download Engine
 
 - [ ] **ENG-01**: URL 입력으로 단일 유튜브 영상을 MP3로 다운로드
-- [ ] **ENG-02**: yt-dlp + ffmpeg를 앱 내 번들 사이드카로 포함 (macOS/Windows/Linux)
+- [x] **ENG-02**: yt-dlp + ffmpeg를 앱 내 번들 사이드카로 포함 (macOS/Windows/Linux)
 - [ ] **ENG-03**: 다운로드 진행률을 실시간으로 프론트엔드에 전달 (Rust → IPC 이벤트)
 - [ ] **ENG-04**: 저장 경로를 폴더 다이얼로그로 지정, 마지막 경로 유지
 - [ ] **ENG-05**: 제목 자동 클린업 — `[Official MV]`, `(Lyrics)`, `(Audio)` 등 YouTube 노이즈 제거
@@ -55,7 +55,7 @@
 
 - [ ] **UI-01**: Y2K / 파워퍼프걸 / 헬로키티 / 레트로 인터넷 스타일 UI
 - [ ] **UI-02**: 파스텔 컬러팔레트 (핑크, 블루, 그린), 픽셀/레트로 폰트
-- [ ] **UI-03**: macOS, Windows, Linux 크로스플랫폼 동작
+- [x] **UI-03**: macOS, Windows, Linux 크로스플랫폼 동작
 
 ## v2 Requirements
 
@@ -91,7 +91,7 @@
 | Requirement | Phase | Status |
 |-------------|-------|--------|
 | ENG-01 | Phase 1 | Pending |
-| ENG-02 | Phase 1 | Pending |
+| ENG-02 | Phase 1 | Complete |
 | ENG-03 | Phase 1 | Pending |
 | ENG-04 | Phase 1 | Pending |
 | ENG-05 | Phase 1 | Pending |
@@ -120,7 +120,7 @@
 | PLAY-03 | Phase 3 | Pending |
 | TITLE-01 | Phase 3 | Pending |
 | TITLE-02 | Phase 3 | Pending |
-| UI-03 | Phase 4 | Pending |
+| UI-03 | Phase 4 | Complete |
 
 **Coverage:**
 - v1 requirements: 30 total

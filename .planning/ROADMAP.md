@@ -39,7 +39,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 **Plans**: 3 plans
 
 Plans:
-- [ ] 01-01: Tauri v2 project scaffold + sidecar setup (yt-dlp + ffmpeg binary naming, platform matrix, build script, capability config)
+- [x] 01-01: Tauri v2 project scaffold + sidecar setup (yt-dlp + ffmpeg binary naming, platform matrix, build script, capability config)
 - [ ] 01-02: Download engine (single-URL MP3 download, ffmpeg path resolution, `--progress-template` stdout parser, IPC progress events, save-folder dialog, yt-dlp update mechanism, error handling, cleanup-on-quit)
 - [ ] 01-03: Y2K UI shell + title cleanup (app window, color palette, typography, retro layout, title cleanup pipeline, basic ID3 tag embed, ENG-05/ENG-06 wired to UI)
 
