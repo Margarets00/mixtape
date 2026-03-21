@@ -19,11 +19,11 @@
 
 ### Search
 
-- [ ] **SRCH-01**: 키워드 검색으로 유튜브 결과 목록 표시 (썸네일, 제목, 채널, 재생시간)
-- [ ] **SRCH-02**: YouTube Data API v3 키워드 검색 (우선, 사용자 API 키 입력)
-- [ ] **SRCH-03**: yt-dlp `ytsearch5:` 폴백 검색 (API 키 없을 때, UI 경고 표시)
-- [ ] **SRCH-04**: URL 직접 입력으로 단일 영상 불러오기
-- [ ] **SRCH-05**: Settings 패널에서 YouTube API 키 입력 및 저장 (Tauri secure store)
+- [x] **SRCH-01**: 키워드 검색으로 유튜브 결과 목록 표시 (썸네일, 제목, 채널, 재생시간)
+- [x] **SRCH-02**: YouTube Data API v3 키워드 검색 (우선, 사용자 API 키 입력)
+- [x] **SRCH-03**: yt-dlp `ytsearch5:` 폴백 검색 (API 키 없을 때, UI 경고 표시)
+- [x] **SRCH-04**: URL 직접 입력으로 단일 영상 불러오기
+- [x] **SRCH-05**: Settings 패널에서 YouTube API 키 입력 및 저장 (Tauri secure store)
 
 ### Preview
 
@@ -101,11 +101,11 @@
 | ENG-09 | Phase 1 | Complete |
 | UI-01 | Phase 1 | Complete |
 | UI-02 | Phase 1 | Complete |
-| SRCH-01 | Phase 2 | Pending |
-| SRCH-02 | Phase 2 | Pending |
-| SRCH-03 | Phase 2 | Pending |
-| SRCH-04 | Phase 2 | Pending |
-| SRCH-05 | Phase 2 | Pending |
+| SRCH-01 | Phase 2 | Complete |
+| SRCH-02 | Phase 2 | Complete |
+| SRCH-03 | Phase 2 | Complete |
+| SRCH-04 | Phase 2 | Complete |
+| SRCH-05 | Phase 2 | Complete |
 | PREV-01 | Phase 2 | Pending |
 | PREV-02 | Phase 2 | Pending |
 | PREV-03 | Phase 2 | Pending |

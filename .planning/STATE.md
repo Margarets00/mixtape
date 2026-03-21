@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: unknown
-stopped_at: Completed 01-03-PLAN.md — Phase 01 download-engine complete
-last_updated: "2026-03-21T14:38:20.434Z"
+stopped_at: Completed 02-core-ux-01-PLAN.md
+last_updated: "2026-03-21T16:22:13.810Z"
 progress:
   total_phases: 4
   completed_phases: 1
-  total_plans: 3
-  completed_plans: 3
+  total_plans: 5
+  completed_plans: 4
 ---
 
 # Project State
@@ -19,12 +19,12 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-21)
 
 **Core value:** 유튜브 음악을 검색 → 미리듣기 → 골라담기 → 한 방에 MP3 저장 — 이 흐름이 끊기지 않아야 한다.
-**Current focus:** Phase 01 — download-engine
+**Current focus:** Phase 02 — core-ux
 
 ## Current Position
 
-Phase: 2
-Plan: Not started
+Phase: 02 (core-ux) — EXECUTING
+Plan: 2 of 2
 
 ## Performance Metrics
 
@@ -50,6 +50,7 @@ Plan: Not started
 | Phase 01-download-engine P02 | 3min | 2 tasks | 5 files |
 | Phase 01-download-engine P03 | 4min | 2 tasks | 12 files |
 | Phase 01-download-engine P03 | 30min | 3 tasks | 16 files |
+| Phase 02-core-ux P01 | 4min | 2 tasks | 13 files |
 
 ## Accumulated Context
 
@@ -71,6 +72,9 @@ Recent decisions affecting current work:
 - [Phase 01-download-engine]: locate_sidecar() uses current_exe().parent() — Tauri dev-mode resolution looks for binaries/yt-dlp-{triple} in target/debug/ which doesn't exist; this approach works in both dev and prod
 - [Phase 01-download-engine]: ffmpeg bundled via download-sidecars.sh now prefers system ffmpeg on macOS to avoid x86_64/arm64 mismatch; falls back to evermeet.cx with warning
 - [Phase 01-download-engine]: Playlist URLs detected by list= or /playlist in URL; skip blocking title fetch and use %(playlist_index)02d - %(title)s output template
+- [Phase 02-core-ux]: http plugin permissions not valid in this Tauri v2 setup; reqwest handles YouTube API HTTP natively from Rust
+- [Phase 02-core-ux]: tauri protocol-asset Cargo feature required when assetProtocol.enable=true in tauri.conf.json (build script validates)
+- [Phase 02-core-ux]: API key passed as Option<String> parameter from frontend to search command — frontend loads from plugin-store before invoking
 
 ### Pending Todos
 
@@ -88,6 +92,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-21T14:34:31.122Z
-Stopped at: Completed 01-03-PLAN.md — Phase 01 download-engine complete
+Last session: 2026-03-21T16:22:13.809Z
+Stopped at: Completed 02-core-ux-01-PLAN.md
 Resume file: None
