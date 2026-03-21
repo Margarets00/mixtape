@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: unknown
-stopped_at: Completed 01-download-engine-01-PLAN.md - Tauri v2 scaffold with sidecar infrastructure
-last_updated: "2026-03-21T13:26:53.370Z"
+stopped_at: Completed 01-download-engine-02-PLAN.md - Rust download engine with yt-dlp sidecar and updater
+last_updated: "2026-03-21T13:31:46.411Z"
 progress:
   total_phases: 4
   completed_phases: 0
   total_plans: 3
-  completed_plans: 1
+  completed_plans: 2
 ---
 
 # Project State
@@ -24,7 +24,7 @@ See: .planning/PROJECT.md (updated 2026-03-21)
 ## Current Position
 
 Phase: 01 (download-engine) — EXECUTING
-Plan: 2 of 3
+Plan: 3 of 3
 
 ## Performance Metrics
 
@@ -47,6 +47,7 @@ Plan: 2 of 3
 
 *Updated after each plan completion*
 | Phase 01-download-engine P01 | 5 | 2 tasks | 22 files |
+| Phase 01-download-engine P02 | 3min | 2 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -60,6 +61,9 @@ Recent decisions affecting current work:
 - [Research]: ffmpeg bundled as sidecar; always pass `--ffmpeg-location` to yt-dlp — never assume PATH.
 - [Phase 01-download-engine]: Universal macOS yt-dlp binary named with aarch64-apple-darwin triple works for both ARM and Intel macs
 - [Phase 01-download-engine]: Tauri externalBin validation requires sidecar files to exist before cargo check; placeholder files needed during scaffolding
+- [Phase 01-download-engine]: Folder persistence (ENG-04) is frontend-only via plugin-dialog + plugin-store; no Rust command needed
+- [Phase 01-download-engine]: yt-dlp update uses temp-file (.new) + fs::rename for atomic replace; never overwrites running binary directly
+- [Phase 01-download-engine]: Both stdout and stderr must be read from yt-dlp since progress moved to stderr (~2022 change)
 
 ### Pending Todos
 
@@ -77,6 +81,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-21T13:26:53.368Z
-Stopped at: Completed 01-download-engine-01-PLAN.md - Tauri v2 scaffold with sidecar infrastructure
+Last session: 2026-03-21T13:31:46.409Z
+Stopped at: Completed 01-download-engine-02-PLAN.md - Rust download engine with yt-dlp sidecar and updater
 Resume file: None

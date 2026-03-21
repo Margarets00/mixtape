@@ -7,15 +7,15 @@
 
 ### Download Engine
 
-- [ ] **ENG-01**: URL 입력으로 단일 유튜브 영상을 MP3로 다운로드
+- [x] **ENG-01**: URL 입력으로 단일 유튜브 영상을 MP3로 다운로드
 - [x] **ENG-02**: yt-dlp + ffmpeg를 앱 내 번들 사이드카로 포함 (macOS/Windows/Linux)
-- [ ] **ENG-03**: 다운로드 진행률을 실시간으로 프론트엔드에 전달 (Rust → IPC 이벤트)
-- [ ] **ENG-04**: 저장 경로를 폴더 다이얼로그로 지정, 마지막 경로 유지
+- [x] **ENG-03**: 다운로드 진행률을 실시간으로 프론트엔드에 전달 (Rust → IPC 이벤트)
+- [x] **ENG-04**: 저장 경로를 폴더 다이얼로그로 지정, 마지막 경로 유지
 - [ ] **ENG-05**: 제목 자동 클린업 — `[Official MV]`, `(Lyrics)`, `(Audio)` 등 YouTube 노이즈 제거
 - [ ] **ENG-06**: 기본 ID3 태그 삽입 (제목, 아티스트, 연도) via yt-dlp `--embed-metadata`
-- [ ] **ENG-07**: 앱 내 yt-dlp 버전 확인 및 업데이트 버튼 (GitHub releases에서 다운)
-- [ ] **ENG-08**: 공통 오류 메시지 표시 (429 rate limit, 403 Forbidden, 영상 없음, ffmpeg 없음)
-- [ ] **ENG-09**: 앱 종료 시 자식 프로세스 정리 및 임시파일 삭제
+- [x] **ENG-07**: 앱 내 yt-dlp 버전 확인 및 업데이트 버튼 (GitHub releases에서 다운)
+- [x] **ENG-08**: 공통 오류 메시지 표시 (429 rate limit, 403 Forbidden, 영상 없음, ffmpeg 없음)
+- [x] **ENG-09**: 앱 종료 시 자식 프로세스 정리 및 임시파일 삭제
 
 ### Search
 
@@ -90,15 +90,15 @@
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| ENG-01 | Phase 1 | Pending |
+| ENG-01 | Phase 1 | Complete |
 | ENG-02 | Phase 1 | Complete |
-| ENG-03 | Phase 1 | Pending |
-| ENG-04 | Phase 1 | Pending |
+| ENG-03 | Phase 1 | Complete |
+| ENG-04 | Phase 1 | Complete |
 | ENG-05 | Phase 1 | Pending |
 | ENG-06 | Phase 1 | Pending |
-| ENG-07 | Phase 1 | Pending |
-| ENG-08 | Phase 1 | Pending |
-| ENG-09 | Phase 1 | Pending |
+| ENG-07 | Phase 1 | Complete |
+| ENG-08 | Phase 1 | Complete |
+| ENG-09 | Phase 1 | Complete |
 | UI-01 | Phase 1 | Pending |
 | UI-02 | Phase 1 | Pending |
 | SRCH-01 | Phase 2 | Pending |
