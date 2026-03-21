@@ -22,9 +22,10 @@ interface QueueTabProps {
   queue: QueueItem[];
   dispatch: React.Dispatch<QueueAction>;
   onNavigateSettings: () => void;
+  onHistoryUpdate?: () => void;
 }
 
-export function QueueTab({ queue, dispatch, onNavigateSettings }: QueueTabProps) {
+export function QueueTab({ queue, dispatch, onNavigateSettings, onHistoryUpdate: _onHistoryUpdate }: QueueTabProps) {
   const [saveDir, setSaveDir] = useState('');
   const [isDownloading, setIsDownloading] = useState(false);
 

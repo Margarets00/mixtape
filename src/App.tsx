@@ -1,4 +1,4 @@
-import { useState, useReducer } from 'react';
+import { useState, useReducer, useEffect } from 'react';
 import './styles/theme.css';
 import './styles/global.css';
 import { TabBar } from './components/TabBar';
@@ -6,8 +6,9 @@ import { SearchTab } from './components/SearchTab';
 import { QueueTab } from './components/QueueTab';
 import { SettingsTab } from './components/SettingsTab';
 import { PlayerBar } from './components/PlayerBar';
+import { HistoryTab } from './components/HistoryTab';
 
-type Tab = 'search' | 'queue' | 'settings';
+type Tab = 'search' | 'queue' | 'history' | 'settings';
 
 // Queue types — shared across components
 export type QueueItemStatus =
@@ -25,13 +26,28 @@ export interface QueueItem {
   thumbnailUrl: string;
   duration: string;
   status: QueueItemStatus;
+  metadataOverrides?: {
+    title?: string;
+    artist?: string;
+    album?: string;
+  };
 }
 
 export type QueueAction =
   | { type: 'ADD_ITEM'; item: Omit<QueueItem, 'status'> }
   | { type: 'UPDATE_STATUS'; id: string; status: QueueItemStatus }
   | { type: 'REMOVE_ITEM'; id: string }
-  | { type: 'CLEAR_DONE' };
+  | { type: 'CLEAR_DONE' }
+  | { type: 'SET_METADATA'; id: string; overrides: { title?: string; artist?: string; album?: string } };
+
+export interface HistoryEntry {
+  videoId: string;
+  title: string;
+  channelName: string;
+  thumbnailUrl: string;
+  downloadedAt: string; // ISO 8601
+  filePath: string;
+}
 
 function queueReducer(state: QueueItem[], action: QueueAction): QueueItem[] {
   switch (action.type) {
@@ -46,6 +62,10 @@ function queueReducer(state: QueueItem[], action: QueueAction): QueueItem[] {
       return state.filter((i) => i.id !== action.id);
     case 'CLEAR_DONE':
       return state.filter((i) => i.status.type !== 'done');
+    case 'SET_METADATA':
+      return state.map((i) =>
+        i.id === action.id ? { ...i, metadataOverrides: action.overrides } : i
+      );
     default:
       return state;
   }
@@ -61,8 +81,30 @@ function App() {
   const [activeTab, setActiveTab] = useState<Tab>('search');
   const [queue, dispatch] = useReducer(queueReducer, []);
   const [previewTrack, setPreviewTrack] = useState<PreviewTrack | null>(null);
+  const [downloadedIds, setDownloadedIds] = useState<Set<string>>(new Set());
 
   const queueBadgeCount = queue.length;
+
+  // Load history on mount to populate downloadedIds for DOWNLOADED badge
+  useEffect(() => {
+    (async () => {
+      const { load } = await import('@tauri-apps/plugin-store');
+      const store = await load('download-history.json', { defaults: {} });
+      const entries = await store.get<HistoryEntry[]>('entries');
+      if (entries) {
+        setDownloadedIds(new Set(entries.map((e) => e.videoId)));
+      }
+    })();
+  }, []);
+
+  const refreshDownloadedIds = async () => {
+    const { load } = await import('@tauri-apps/plugin-store');
+    const store = await load('download-history.json', { defaults: {} });
+    const entries = await store.get<HistoryEntry[]>('entries');
+    if (entries) {
+      setDownloadedIds(new Set(entries.map((e) => e.videoId)));
+    }
+  };
 
   return (
     <div
@@ -118,6 +160,7 @@ function App() {
             queue={queue}
             onPreview={setPreviewTrack}
             onNavigateSettings={() => setActiveTab('settings')}
+            downloadedIds={downloadedIds}
           />
         )}
         {activeTab === 'queue' && (
@@ -125,8 +168,10 @@ function App() {
             queue={queue}
             dispatch={dispatch}
             onNavigateSettings={() => setActiveTab('settings')}
+            onHistoryUpdate={refreshDownloadedIds}
           />
         )}
+        {activeTab === 'history' && <HistoryTab />}
         {activeTab === 'settings' && <SettingsTab />}
       </main>
 

@@ -11,6 +11,7 @@ export interface SearchResult {
 interface SearchResultRowProps {
   result: SearchResult;
   isInQueue: boolean;
+  isDownloaded?: boolean;
   onPreview: () => void;
   onAddToQueue: () => void;
 }
@@ -18,6 +19,7 @@ interface SearchResultRowProps {
 export function SearchResultRow({
   result,
   isInQueue,
+  isDownloaded,
   onPreview,
   onAddToQueue,
 }: SearchResultRowProps) {
@@ -100,6 +102,22 @@ export function SearchResultRow({
             {' \u00B7 '}{result.duration}
           </span>
         </div>
+        {isDownloaded && (
+          <span
+            style={{
+              background: 'var(--color-pink-dark)',
+              fontFamily: 'var(--font-display)',
+              fontSize: '10px',
+              textTransform: 'uppercase',
+              padding: '2px 6px',
+              display: 'inline-block',
+              marginTop: '4px',
+              color: 'white',
+            }}
+          >
+            DOWNLOADED
+          </span>
+        )}
         {isInQueue && (
           <span
             style={{

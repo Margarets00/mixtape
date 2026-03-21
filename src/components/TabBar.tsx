@@ -1,4 +1,4 @@
-type Tab = 'search' | 'queue' | 'settings';
+type Tab = 'search' | 'queue' | 'history' | 'settings';
 
 interface TabBarProps {
   active: Tab;
@@ -10,6 +10,7 @@ export function TabBar({ active, onSwitch, queueBadge }: TabBarProps) {
   const tabs: { id: Tab; label: string }[] = [
     { id: 'search', label: 'SEARCH' },
     { id: 'queue', label: 'QUEUE' },
+    { id: 'history', label: 'HISTORY' },
     { id: 'settings', label: 'SETTINGS' },
   ];
 

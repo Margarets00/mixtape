@@ -31,13 +31,14 @@ interface SearchTabProps {
   queue: QueueItem[];
   onPreview: (track: PreviewTrack) => void;
   onNavigateSettings: () => void;
+  downloadedIds?: Set<string>;
 }
 
 function isPlaylistUrl(url: string): boolean {
   return url.includes('/playlist?list=') || (url.includes('/playlist?') && url.includes('list='));
 }
 
-export function SearchTab({ dispatch, queue, onPreview, onNavigateSettings }: SearchTabProps) {
+export function SearchTab({ dispatch, queue, onPreview, onNavigateSettings, downloadedIds }: SearchTabProps) {
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<SearchResult[]>([]);
   const [isSearching, setIsSearching] = useState(false);
@@ -280,7 +281,7 @@ export function SearchTab({ dispatch, queue, onPreview, onNavigateSettings }: Se
                 track={track}
                 checked={selectedIds.has(track.id)}
                 onToggle={handleToggleTrack}
-                isDownloaded={false}
+                isDownloaded={downloadedIds?.has(track.id) ?? false}
               />
             ))}
 
@@ -423,6 +424,7 @@ export function SearchTab({ dispatch, queue, onPreview, onNavigateSettings }: Se
                   key={result.id}
                   result={result}
                   isInQueue={queueIds.has(result.id)}
+                  isDownloaded={downloadedIds?.has(result.id) ?? false}
                   onPreview={() =>
                     onPreview({
                       id: result.id,
