@@ -27,18 +27,18 @@
 
 ### Preview
 
-- [ ] **PREV-01**: 검색 결과에서 곡 선택 시 앱 내 오디오 미리듣기 (최대 60초)
-- [ ] **PREV-02**: 미리듣기는 임시파일 방식 (tmp 디렉토리에 60초 다운, 재생 후 자동 삭제)
-- [ ] **PREV-03**: 재생/일시정지 컨트롤 및 진행 표시
+- [x] **PREV-01**: 검색 결과에서 곡 선택 시 앱 내 오디오 미리듣기 (최대 60초)
+- [x] **PREV-02**: 미리듣기는 임시파일 방식 (tmp 디렉토리에 60초 다운, 재생 후 자동 삭제)
+- [x] **PREV-03**: 재생/일시정지 컨트롤 및 진행 표시
 
 ### Queue & Batch Download
 
-- [ ] **QUEUE-01**: 검색 결과에서 여러 곡을 장바구니(큐)에 추가
-- [ ] **QUEUE-02**: 큐 패널에서 "전체 다운로드" 버튼으로 일괄 다운로드
-- [ ] **QUEUE-03**: 큐 항목별 상태 표시 (대기 → 다운로드 중 % → 변환 중 → 완료/오류)
-- [ ] **QUEUE-04**: 동시 다운로드 최대 2개 (Semaphore), 다운로드 간 2초 딜레이
-- [ ] **QUEUE-05**: 429 응답 시 지수 백오프 (30s → 60s → 120s) 및 재시도 버튼
-- [ ] **QUEUE-06**: 개별 큐 항목 취소 (Rust child process kill)
+- [x] **QUEUE-01**: 검색 결과에서 여러 곡을 장바구니(큐)에 추가
+- [x] **QUEUE-02**: 큐 패널에서 "전체 다운로드" 버튼으로 일괄 다운로드
+- [x] **QUEUE-03**: 큐 항목별 상태 표시 (대기 → 다운로드 중 % → 변환 중 → 완료/오류)
+- [x] **QUEUE-04**: 동시 다운로드 최대 2개 (Semaphore), 다운로드 간 2초 딜레이
+- [x] **QUEUE-05**: 429 응답 시 지수 백오프 (30s → 60s → 120s) 및 재시도 버튼
+- [x] **QUEUE-06**: 개별 큐 항목 취소 (Rust child process kill)
 
 ### Playlist
 
@@ -106,15 +106,15 @@
 | SRCH-03 | Phase 2 | Complete |
 | SRCH-04 | Phase 2 | Complete |
 | SRCH-05 | Phase 2 | Complete |
-| PREV-01 | Phase 2 | Pending |
-| PREV-02 | Phase 2 | Pending |
-| PREV-03 | Phase 2 | Pending |
-| QUEUE-01 | Phase 2 | Pending |
-| QUEUE-02 | Phase 2 | Pending |
-| QUEUE-03 | Phase 2 | Pending |
-| QUEUE-04 | Phase 2 | Pending |
-| QUEUE-05 | Phase 2 | Pending |
-| QUEUE-06 | Phase 2 | Pending |
+| PREV-01 | Phase 2 | Complete |
+| PREV-02 | Phase 2 | Complete |
+| PREV-03 | Phase 2 | Complete |
+| QUEUE-01 | Phase 2 | Complete |
+| QUEUE-02 | Phase 2 | Complete |
+| QUEUE-03 | Phase 2 | Complete |
+| QUEUE-04 | Phase 2 | Complete |
+| QUEUE-05 | Phase 2 | Complete |
+| QUEUE-06 | Phase 2 | Complete |
 | PLAY-01 | Phase 3 | Pending |
 | PLAY-02 | Phase 3 | Pending |
 | PLAY-03 | Phase 3 | Pending |

@@ -13,7 +13,7 @@ Four phases, each delivering a coherent vertical slice. Phase 1 builds the engin
 Decimal phases appear between their surrounding integers in numeric order.
 
 - [x] **Phase 1: Download Engine** - Sidecar infrastructure + single-URL MP3 download working cross-platform (completed 2026-03-21)
-- [ ] **Phase 2: Core UX** - Search, audio preview, cart-style queue — the full core loop
+- [x] **Phase 2: Core UX** - Search, audio preview, cart-style queue — the full core loop (completed 2026-03-21)
 - [ ] **Phase 3: Power Features** - Playlist support, filename templates, metadata editing, history
 - [ ] **Phase 4: Distribution** - Code signing, notarization, CI/CD build matrix, auto-updater
 
@@ -66,7 +66,7 @@ Plans:
 
 Plans:
 - [x] 02-01: Search + settings panel (dual-mode search, API key secure storage, result list UI with thumbnail/title/channel/duration, URL direct-load, yt-dlp fallback warning)
-- [ ] 02-02: Audio preview + download queue (temp-file preview pipeline, play/pause/progress controls, cart-style queue UI, bounded concurrency semaphore, per-item state machine, 429 backoff + retry, cancel with cleanup)
+- [x] 02-02: Audio preview + download queue (temp-file preview pipeline, play/pause/progress controls, cart-style queue UI, bounded concurrency semaphore, per-item state machine, 429 backoff + retry, cancel with cleanup)
 
 ---
 
@@ -126,7 +126,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Download Engine | 3/3 | Complete   | 2026-03-21 |
-| 2. Core UX | 0/2 | Not started | - |
+| 2. Core UX | 2/2 | Complete   | 2026-03-21 |
 | 3. Power Features | 0/2 | Not started | - |
 | 4. Distribution | 0/2 | Not started | - |
 

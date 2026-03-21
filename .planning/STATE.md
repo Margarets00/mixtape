@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: unknown
-stopped_at: Completed 02-core-ux-01-PLAN.md
-last_updated: "2026-03-21T16:22:13.810Z"
+stopped_at: Completed 02-core-ux-02-PLAN.md
+last_updated: "2026-03-21T16:29:26.528Z"
 progress:
   total_phases: 4
-  completed_phases: 1
+  completed_phases: 2
   total_plans: 5
-  completed_plans: 4
+  completed_plans: 5
 ---
 
 # Project State
@@ -51,6 +51,7 @@ Plan: 2 of 2
 | Phase 01-download-engine P03 | 4min | 2 tasks | 12 files |
 | Phase 01-download-engine P03 | 30min | 3 tasks | 16 files |
 | Phase 02-core-ux P01 | 4min | 2 tasks | 13 files |
+| Phase 02-core-ux P02 | 4min | 2 tasks | 7 files |
 
 ## Accumulated Context
 
@@ -75,6 +76,9 @@ Recent decisions affecting current work:
 - [Phase 02-core-ux]: http plugin permissions not valid in this Tauri v2 setup; reqwest handles YouTube API HTTP natively from Rust
 - [Phase 02-core-ux]: tauri protocol-asset Cargo feature required when assetProtocol.enable=true in tauri.conf.json (build script validates)
 - [Phase 02-core-ux]: API key passed as Option<String> parameter from frontend to search command — frontend loads from plugin-store before invoking
+- [Phase 02-core-ux]: app.state::<AppState>() called inline in async commands to avoid Rust E0597 lifetime error with bound State<'_> variables
+- [Phase 02-core-ux]: OwnedSemaphorePermit moved into spawned task so semaphore slot is held for full download duration
+- [Phase 02-core-ux]: parse_yt_dlp_line made pub for queue.rs reuse; cancel_download skips .part cleanup since yt-dlp naming makes them harmless
 
 ### Pending Todos
 
@@ -92,6 +96,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-21T16:22:13.809Z
-Stopped at: Completed 02-core-ux-01-PLAN.md
+Last session: 2026-03-21T16:29:26.527Z
+Stopped at: Completed 02-core-ux-02-PLAN.md
 Resume file: None
