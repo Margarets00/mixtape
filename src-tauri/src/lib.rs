@@ -1,5 +1,7 @@
 mod download;
 mod errors;
+mod preview;
+mod queue;
 mod search;
 mod state;
 mod title;
@@ -19,6 +21,10 @@ pub fn run() {
             updater::check_ytdlp_version,
             updater::update_ytdlp,
             search::search,
+            preview::preview_start,
+            preview::preview_stop,
+            queue::queue_download,
+            queue::cancel_download,
         ])
         .build(tauri::generate_context!())
         .expect("error while building tauri application")
@@ -47,6 +53,17 @@ pub fn run() {
                     .unwrap_or_default();
                 for pid in queue_pids {
                     kill_pid(pid);
+                }
+
+                // Clean up preview temp files
+                if let Ok(tmp_dir) = std::env::temp_dir().read_dir() {
+                    for entry in tmp_dir.flatten() {
+                        let name = entry.file_name();
+                        let name_str = name.to_string_lossy();
+                        if name_str.starts_with("preview_") && name_str.ends_with(".mp3") {
+                            let _ = std::fs::remove_file(entry.path());
+                        }
+                    }
                 }
             }
         });

@@ -59,7 +59,7 @@ pub fn locate_sidecar(name: &str) -> Result<std::path::PathBuf, String> {
     Err(format!("sidecar '{}' not found in {:?}", name, dir))
 }
 
-fn parse_yt_dlp_line(line: &str) -> Option<DownloadEvent> {
+pub fn parse_yt_dlp_line(line: &str) -> Option<DownloadEvent> {
     if line.starts_with("PROGRESS ") {
         let parts: Vec<&str> = line.splitn(4, ' ').collect();
         if parts.len() >= 4 {
