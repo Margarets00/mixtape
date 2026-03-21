@@ -53,3 +53,23 @@ input[type="text"]:focus {
   outline: none;
   box-shadow: var(--shadow-retro);
 }
+
+input[type="password"] {
+  border: var(--border-style);
+  padding: 10px;
+  font-family: var(--font-body);
+  font-size: 18px;
+  width: 100%;
+  background: white;
+  box-sizing: border-box;
+}
+
+input[type="password"]:focus {
+  outline: none;
+  box-shadow: var(--shadow-retro);
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
