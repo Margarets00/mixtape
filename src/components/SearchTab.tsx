@@ -255,23 +255,25 @@ export function SearchTab({
       const store = await load('app-settings.json', { defaults: {} });
       const apiKey = await store.get<string | null>('youtube_api_key');
 
+      const accumulated: SearchResult[] = [];
       const onResult = new Channel<SearchEvent>();
       onResult.onmessage = (event) => {
         if (event.type === 'Result' && event.data) {
-          const newResult: SearchResult = {
+          accumulated.push({
             id: event.data.id ?? '',
             title: event.data.title ?? '',
             thumbnail_url: event.data.thumbnail_url ?? '',
             duration: event.data.duration ?? '?',
             channel: event.data.channel ?? '',
-          };
+          });
           onSearchStateChange({
             ...searchStateRef.current,
-            results: [...searchStateRef.current.results, newResult],
+            results: [...accumulated],
           });
         } else if (event.type === 'Done') {
           onSearchStateChange({
             ...searchStateRef.current,
+            results: [...accumulated],
             isSearching: false,
             usedFallback: event.data?.used_fallback ?? false,
           });
