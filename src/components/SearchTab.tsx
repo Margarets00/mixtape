@@ -311,7 +311,7 @@ export function SearchTab({
           disabled={isSearching || isAddingUrl || playlistLoading || !query.trim()}
           style={{ flexShrink: 0 }}
         >
-          SEARCH
+          {isYoutubeUrl(query.trim()) ? 'ADD TO QUEUE' : 'SEARCH'}
         </button>
       </div>
 
