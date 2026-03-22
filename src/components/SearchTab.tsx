@@ -93,6 +93,17 @@ export function SearchTab({
 
   const [toast, setToast] = useState<string | null>(null);
   const [isAddingUrl, setIsAddingUrl] = useState(false);
+  const [searchElapsed, setSearchElapsed] = useState(0);
+
+  useEffect(() => {
+    if (!isSearching) {
+      setSearchElapsed(0);
+      return;
+    }
+    setSearchElapsed(0);
+    const interval = setInterval(() => setSearchElapsed((s) => s + 1), 1000);
+    return () => clearInterval(interval);
+  }, [isSearching]);
 
   const showToast = (msg: string) => {
     setToast(msg);
@@ -567,7 +578,7 @@ export function SearchTab({
                   paddingBottom: '12px',
                 }}
               >
-                ~ searching... ~
+                {`~ searching... ${searchElapsed > 0 ? `(${searchElapsed}s) ` : ''}~`}
               </div>
               {[1, 2, 3].map((i) => (
                 <div
