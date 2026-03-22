@@ -19,7 +19,7 @@ pub async fn preview_start(
 
     let cookie_args = {
         let state = app.state::<crate::state::AppState>();
-        crate::cookies::cookie_browser_args(&state)
+        crate::cookies::cookie_file_args(&state)
     };
 
     let mut child = tokio::process::Command::new(&ytdlp)

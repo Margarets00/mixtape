@@ -122,7 +122,7 @@ pub async fn download(
     // Get cookie args from AppState before entering async branches
     let cookie_args = {
         let state = app.state::<crate::state::AppState>();
-        crate::cookies::cookie_browser_args(&state)
+        crate::cookies::cookie_file_args(&state)
     };
 
     let (output_template, output_path) = if is_playlist {

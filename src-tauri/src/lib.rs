@@ -21,7 +21,9 @@ pub fn run() {
         .setup(|app| {
             let app_handle = app.handle().clone();
             tauri::async_runtime::spawn(async move {
-                let _ = crate::cookies::detect_cookie_browser(app_handle).await;
+                if crate::cookies::detect_cookie_browser(app_handle.clone()).await.is_ok() {
+                    let _ = crate::cookies::extract_cookies_to_tempfile(app_handle).await;
+                }
             });
             Ok(())
         })
@@ -77,6 +79,12 @@ pub fn run() {
                             let _ = std::fs::remove_file(entry.path());
                         }
                     }
+                }
+
+                // Clean up cookie temp file
+                let cookie_path = state.cookie_file_path.lock().ok().and_then(|g| g.clone());
+                if let Some(path) = cookie_path {
+                    let _ = std::fs::remove_file(&path);
                 }
             }
         });

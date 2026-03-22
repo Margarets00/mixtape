@@ -65,7 +65,7 @@ pub async fn queue_download(
     // Get cookie args from AppState before entering spawned task (avoids lifetime issues)
     let cookie_args: Vec<String> = {
         let state = app.state::<crate::state::AppState>();
-        crate::cookies::cookie_browser_args(&state)
+        crate::cookies::cookie_file_args(&state)
     };
 
     // Pre-fetch title for clean filename (outside the retry loop — happens once)

@@ -45,16 +45,53 @@ pub async fn set_cookie_browser(
     Ok(())
 }
 
+/// 앱 시작 시 1회 호출: 브라우저 쿠키를 temp 파일로 내보내고 경로를 AppState에 저장.
+/// 실패해도 에러를 무시하고 계속 동작 (쿠키 없이 진행).
+pub async fn extract_cookies_to_tempfile(app: tauri::AppHandle) -> Result<(), String> {
+    let state = app.state::<crate::state::AppState>();
+    let browser_opt = state.cookie_browser.lock().ok().and_then(|g| g.clone());
+    let browser = match browser_opt {
+        Some(b) => b,
+        None => return Ok(()),
+    };
+
+    let pid = std::process::id();
+    let tmp_path = format!("/tmp/yt-cookies-{}.txt", pid);
+
+    let ytdlp_path = match crate::download::locate_sidecar("yt-dlp") {
+        Ok(p) => p,
+        Err(_) => return Ok(()),
+    };
+
+    let result = tokio::process::Command::new(&ytdlp_path)
+        .args([
+            "--cookies-from-browser",
+            &browser,
+            "--cookies",
+            &tmp_path,
+            "--skip-download",
+            "--no-warnings",
+            "https://www.youtube.com",
+        ])
+        .output()
+        .await;
+
+    if result.is_ok() && std::path::Path::new(&tmp_path).exists() {
+        if let Ok(mut guard) = state.cookie_file_path.lock() {
+            *guard = Some(tmp_path);
+        }
+    }
+
+    Ok(())
+}
+
 /// yt-dlp Command에 추가할 쿠키 인자 반환.
-/// cookie_browser가 Some("chrome")이면 vec!["--cookies-from-browser", "chrome"]
+/// cookie_file_path가 Some(path)이면 vec!["--cookies", path]
 /// None이면 빈 Vec
-pub fn cookie_browser_args(state: &crate::state::AppState) -> Vec<String> {
-    if let Ok(guard) = state.cookie_browser.lock() {
-        if let Some(ref browser) = *guard {
-            return vec![
-                "--cookies-from-browser".to_string(),
-                browser.clone(),
-            ];
+pub fn cookie_file_args(state: &crate::state::AppState) -> Vec<String> {
+    if let Ok(guard) = state.cookie_file_path.lock() {
+        if let Some(ref path) = *guard {
+            return vec!["--cookies".to_string(), path.clone()];
         }
     }
     vec![]

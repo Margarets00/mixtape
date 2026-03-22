@@ -8,6 +8,7 @@ pub struct AppState {
     pub queue_pids: Mutex<HashMap<String, u32>>,
     pub download_semaphore: Arc<Semaphore>,
     pub cookie_browser: Mutex<Option<String>>,
+    pub cookie_file_path: Mutex<Option<String>>,
 }
 
 impl Default for AppState {
@@ -18,6 +19,7 @@ impl Default for AppState {
             queue_pids: Mutex::new(HashMap::new()),
             download_semaphore: Arc::new(Semaphore::new(2)),
             cookie_browser: Mutex::new(None),
+            cookie_file_path: Mutex::new(None),
         }
     }
 }
