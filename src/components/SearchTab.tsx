@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useRef, useEffect } from 'react';
 import { invoke } from '@tauri-apps/api/core';
 import { Channel } from '@tauri-apps/api/core';
 import { load } from '@tauri-apps/plugin-store';
@@ -6,7 +6,7 @@ import { SearchResultRow } from './SearchResultRow';
 import type { SearchResult } from './SearchResultRow';
 import { PlaylistTrackRow } from './PlaylistTrackRow';
 import type { PlaylistTrack } from './PlaylistTrackRow';
-import type { QueueAction, QueueItem, PreviewTrack } from '../App';
+import type { QueueAction, QueueItem, PreviewTrack, SearchState } from '../App';
 
 interface SearchResponse {
   results: SearchResult[];
@@ -32,24 +32,33 @@ interface SearchTabProps {
   onPreview: (track: PreviewTrack) => void;
   onNavigateSettings: () => void;
   downloadedIds?: Set<string>;
+  searchState: SearchState;
+  onSearchStateChange: (s: SearchState) => void;
 }
 
 function isPlaylistUrl(url: string): boolean {
   return url.includes('/playlist?list=') || (url.includes('/playlist?') && url.includes('list='));
 }
 
-export function SearchTab({ dispatch, queue, onPreview, onNavigateSettings, downloadedIds }: SearchTabProps) {
-  const [query, setQuery] = useState('');
-  const [results, setResults] = useState<SearchResult[]>([]);
-  const [isSearching, setIsSearching] = useState(false);
-  const [hasSearched, setHasSearched] = useState(false);
-  const [usedFallback, setUsedFallback] = useState(false);
+export function SearchTab({
+  dispatch,
+  queue,
+  onPreview,
+  onNavigateSettings,
+  downloadedIds,
+  searchState,
+  onSearchStateChange,
+}: SearchTabProps) {
+  const { query, results, isSearching, hasSearched, usedFallback, isPlaylist, playlistTracks, selectedIds, playlistLoading } = searchState;
 
-  // Playlist state
-  const [playlistTracks, setPlaylistTracks] = useState<PlaylistTrack[]>([]);
-  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
-  const [isPlaylist, setIsPlaylist] = useState(false);
-  const [playlistLoading, setPlaylistLoading] = useState(false);
+  // Keep a ref to latest searchState for use inside async callbacks
+  const searchStateRef = useRef(searchState);
+  useEffect(() => {
+    searchStateRef.current = searchState;
+  }, [searchState]);
+
+  const update = (patch: Partial<SearchState>) =>
+    onSearchStateChange({ ...searchState, ...patch });
 
   const handleSearch = async () => {
     if (!query.trim()) return;
@@ -58,12 +67,15 @@ export function SearchTab({ dispatch, queue, onPreview, onNavigateSettings, down
 
     // Playlist URL branch
     if (isPlaylistUrl(trimmed)) {
-      setIsPlaylist(true);
-      setPlaylistLoading(true);
-      setPlaylistTracks([]);
-      setSelectedIds(new Set());
-      setResults([]);
-      setHasSearched(true);
+      onSearchStateChange({
+        ...searchState,
+        isPlaylist: true,
+        playlistLoading: true,
+        playlistTracks: [],
+        selectedIds: new Set(),
+        results: [],
+        hasSearched: true,
+      });
 
       const onTrack = new Channel<PlaylistTrackEvent>();
       onTrack.onmessage = (event) => {
@@ -75,11 +87,14 @@ export function SearchTab({ dispatch, queue, onPreview, onNavigateSettings, down
             duration: event.data.duration ?? '?',
             channel: event.data.channel ?? '',
           };
-          setPlaylistTracks((prev) => [...prev, track]);
+          onSearchStateChange({
+            ...searchStateRef.current,
+            playlistTracks: [...searchStateRef.current.playlistTracks, track],
+          });
         } else if (event.type === 'Done') {
-          setPlaylistLoading(false);
+          onSearchStateChange({ ...searchStateRef.current, playlistLoading: false });
         } else if (event.type === 'Error') {
-          setPlaylistLoading(false);
+          onSearchStateChange({ ...searchStateRef.current, playlistLoading: false });
         }
       };
 
@@ -88,9 +103,7 @@ export function SearchTab({ dispatch, queue, onPreview, onNavigateSettings, down
     }
 
     // Normal search
-    setIsPlaylist(false);
-    setIsSearching(true);
-    setHasSearched(true);
+    update({ isPlaylist: false, isSearching: true, hasSearched: true });
 
     try {
       const store = await load('app-settings.json', { defaults: {} });
@@ -101,13 +114,15 @@ export function SearchTab({ dispatch, queue, onPreview, onNavigateSettings, down
         apiKey: apiKey || null,
       });
 
-      setResults(response.results);
-      setUsedFallback(response.used_fallback);
+      onSearchStateChange({
+        ...searchStateRef.current,
+        results: response.results,
+        usedFallback: response.used_fallback,
+        isSearching: false,
+      });
     } catch (err) {
       console.error('Search failed:', err);
-      setResults([]);
-    } finally {
-      setIsSearching(false);
+      onSearchStateChange({ ...searchStateRef.current, results: [], isSearching: false });
     }
   };
 
@@ -118,23 +133,21 @@ export function SearchTab({ dispatch, queue, onPreview, onNavigateSettings, down
   };
 
   const handleToggleTrack = (id: string) => {
-    setSelectedIds((prev) => {
-      const next = new Set(prev);
-      if (next.has(id)) {
-        next.delete(id);
-      } else {
-        next.add(id);
-      }
-      return next;
-    });
+    const next = new Set(selectedIds);
+    if (next.has(id)) {
+      next.delete(id);
+    } else {
+      next.add(id);
+    }
+    update({ selectedIds: next });
   };
 
   const handleSelectAll = () => {
-    setSelectedIds(new Set(playlistTracks.map((t) => t.id)));
+    update({ selectedIds: new Set(playlistTracks.map((t) => t.id)) });
   };
 
   const handleDeselectAll = () => {
-    setSelectedIds(new Set());
+    update({ selectedIds: new Set() });
   };
 
   const handleAddSelectedToQueue = () => {
@@ -155,10 +168,7 @@ export function SearchTab({ dispatch, queue, onPreview, onNavigateSettings, down
   };
 
   const handleBackToSearch = () => {
-    setIsPlaylist(false);
-    setPlaylistTracks([]);
-    setSelectedIds(new Set());
-    setPlaylistLoading(false);
+    update({ isPlaylist: false, playlistTracks: [], selectedIds: new Set(), playlistLoading: false });
   };
 
   const queueIds = new Set(queue.map((item) => item.id));
@@ -171,7 +181,7 @@ export function SearchTab({ dispatch, queue, onPreview, onNavigateSettings, down
           type="text"
           placeholder="type a song or artist name..."
           value={query}
-          onChange={(e) => setQuery(e.target.value)}
+          onChange={(e) => update({ query: e.target.value })}
           onKeyDown={handleKeyDown}
           style={{ flex: 1 }}
         />

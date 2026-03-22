@@ -8,8 +8,34 @@ import { SettingsTab } from './components/SettingsTab';
 import { PlayerBar } from './components/PlayerBar';
 import { HistoryTab } from './components/HistoryTab';
 import { useAutoUpdate } from './hooks/useAutoUpdate';
+import type { SearchResult } from './components/SearchResultRow';
+import type { PlaylistTrack } from './components/PlaylistTrackRow';
 
 type Tab = 'search' | 'queue' | 'history' | 'settings';
+
+export interface SearchState {
+  query: string;
+  results: SearchResult[];
+  isSearching: boolean;
+  hasSearched: boolean;
+  usedFallback: boolean;
+  isPlaylist: boolean;
+  playlistTracks: PlaylistTrack[];
+  selectedIds: Set<string>;
+  playlistLoading: boolean;
+}
+
+const INITIAL_SEARCH_STATE: SearchState = {
+  query: '',
+  results: [],
+  isSearching: false,
+  hasSearched: false,
+  usedFallback: false,
+  isPlaylist: false,
+  playlistTracks: [],
+  selectedIds: new Set(),
+  playlistLoading: false,
+};
 
 // Queue types — shared across components
 export type QueueItemStatus =
@@ -83,6 +109,7 @@ function App() {
   const [queue, dispatch] = useReducer(queueReducer, []);
   const [previewTrack, setPreviewTrack] = useState<PreviewTrack | null>(null);
   const [downloadedIds, setDownloadedIds] = useState<Set<string>>(new Set());
+  const [searchState, setSearchState] = useState<SearchState>(INITIAL_SEARCH_STATE);
 
   const { updateAvailable, version, install, dismiss } = useAutoUpdate();
 
@@ -157,15 +184,18 @@ function App() {
           boxShadow: 'inset 2px 2px 0px var(--color-pink)',
         }}
       >
-        {activeTab === 'search' && (
+        {/* SearchTab: 항상 마운트, 탭 전환 시 display 로만 감춤 */}
+        <div style={{ display: activeTab === 'search' ? 'block' : 'none' }}>
           <SearchTab
             dispatch={dispatch}
             queue={queue}
             onPreview={setPreviewTrack}
             onNavigateSettings={() => setActiveTab('settings')}
             downloadedIds={downloadedIds}
+            searchState={searchState}
+            onSearchStateChange={setSearchState}
           />
-        )}
+        </div>
         {activeTab === 'queue' && (
           <QueueTab
             queue={queue}
