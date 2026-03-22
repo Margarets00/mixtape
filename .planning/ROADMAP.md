@@ -117,7 +117,7 @@ Plans:
 **Plans**: 2 plans
 
 Plans:
-- [ ] 04-01-PLAN.md — Signing config + updater plugin + CI sidecar script (tauri.conf.json signing/notarization config, Entitlements.plist, tauri-plugin-updater registration, CI sidecar download script for universal macOS, auto-update toast UI)
+- [x] 04-01-PLAN.md — Signing config + updater plugin + CI sidecar script (tauri.conf.json signing/notarization config, Entitlements.plist, tauri-plugin-updater registration, CI sidecar download script for universal macOS, auto-update toast UI)
 - [ ] 04-02-PLAN.md — GitHub Actions release workflow (three-job CI pipeline: macOS universal .dmg + notarize, Windows NSIS + EV sign, Linux AppImage; pre-release checklist checkpoint)
 
 ---

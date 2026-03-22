@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: unknown
-stopped_at: Completed 03-power-features-03-PLAN.md
-last_updated: "2026-03-21T18:39:11.075Z"
+stopped_at: Completed 04-distribution-04-01-PLAN.md
+last_updated: "2026-03-22T06:56:26.064Z"
 progress:
   total_phases: 4
   completed_phases: 3
-  total_plans: 9
-  completed_plans: 9
+  total_plans: 11
+  completed_plans: 10
 ---
 
 # Project State
@@ -19,12 +19,12 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-21)
 
 **Core value:** 유튜브 음악을 검색 → 미리듣기 → 골라담기 → 한 방에 MP3 저장 — 이 흐름이 끊기지 않아야 한다.
-**Current focus:** Phase 03 — power-features
+**Current focus:** Phase 04 — distribution
 
 ## Current Position
 
-Phase: 4
-Plan: Not started
+Phase: 04 (distribution) — EXECUTING
+Plan: 2 of 2
 
 ## Performance Metrics
 
@@ -56,6 +56,7 @@ Plan: Not started
 | Phase 03-power-features P01 | 2min | 2 tasks | 4 files |
 | Phase 03-power-features P02 | 2min | 2 tasks | 3 files |
 | Phase 03-power-features P03 | 5min | 3 tasks | 12 files |
+| Phase 04-distribution P01 | 2min | 2 tasks | 9 files |
 
 ## Accumulated Context
 
@@ -92,6 +93,9 @@ Recent decisions affecting current work:
 - [Phase 03-power-features]: History write uses snapshot of item data before channel callback — avoids stale closure from React state
 - [Phase 03-power-features]: Metadata overrides use yt-dlp --parse-metadata flag with :(?P<meta_title>...) syntax to inject ID3 tags
 - [Phase 03-power-features]: Notification permission guard: isPermissionGranted check before requestPermission — avoids repeated prompts
+- [Phase 04-distribution]: tauri-plugin-updater registered via .setup() not .plugin() — updater requires app handle at registration time
+- [Phase 04-distribution]: UPDATER_PUBKEY_PLACEHOLDER and OWNER/REPO are greppable placeholders in tauri.conf.json — must be filled before first release
+- [Phase 04-distribution]: CI sidecar script delegates Windows/Linux to existing download-sidecars.sh via exec — only macOS universal case uses lipo
 
 ### Pending Todos
 
@@ -109,6 +113,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-21T18:35:24.411Z
-Stopped at: Completed 03-power-features-03-PLAN.md
+Last session: 2026-03-22T06:56:26.062Z
+Stopped at: Completed 04-distribution-04-01-PLAN.md
 Resume file: None
