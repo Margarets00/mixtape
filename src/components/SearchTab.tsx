@@ -37,7 +37,15 @@ interface SearchTabProps {
 }
 
 function isPlaylistUrl(url: string): boolean {
-  return url.includes('/playlist?list=') || (url.includes('/playlist?') && url.includes('list='));
+  // /playlist?list= format (standard playlist)
+  if (url.includes('/playlist?list=') || (url.includes('/playlist?') && url.includes('list='))) {
+    return true;
+  }
+  // list=RD... format (YouTube Radio Mix / Auto-generated playlist)
+  if (url.includes('list=RD')) {
+    return true;
+  }
+  return false;
 }
 
 export function SearchTab({

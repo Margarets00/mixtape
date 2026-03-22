@@ -1,5 +1,6 @@
 use regex::Regex;
 use std::collections::HashMap;
+use tauri::Manager;
 use tokio::io::AsyncBufReadExt;
 use tokio::process::Command;
 
@@ -230,14 +231,28 @@ pub async fn search_ytdlp(query: String) -> Result<Vec<SearchResult>, String> {
 /// - If query is a URL: use yt-dlp to fetch single-video metadata.
 /// - If query is a keyword: try YouTube API first (if api_key provided), fall back to yt-dlp.
 #[tauri::command]
-pub async fn search(query: String, api_key: Option<String>) -> Result<SearchResponse, String> {
-    let is_url = query.starts_with("http://")
-        || query.starts_with("https://")
-        || query.starts_with("youtu.be");
+pub async fn search(app: tauri::AppHandle, query: String, api_key: Option<String>) -> Result<SearchResponse, String> {
+    // Normalize bare youtube.com / youtu.be URLs (without https:// prefix)
+    let normalized_query = if (query.starts_with("youtube.com") || query.starts_with("youtu.be"))
+        && !query.starts_with("http")
+    {
+        format!("https://{}", query)
+    } else {
+        query.clone()
+    };
+
+    let is_url = normalized_query.starts_with("http://")
+        || normalized_query.starts_with("https://")
+        || normalized_query.starts_with("youtu.be");
 
     if is_url {
         // Single-video metadata via yt-dlp
         let ytdlp_path = crate::download::locate_sidecar("yt-dlp")?;
+
+        let cookie_args = {
+            let state = app.state::<crate::state::AppState>();
+            crate::cookies::cookie_file_args(&state)
+        };
 
         let output = Command::new(&ytdlp_path)
             .args([
@@ -245,8 +260,9 @@ pub async fn search(query: String, api_key: Option<String>) -> Result<SearchResp
                 "%(id)s\t%(title)s\t%(thumbnail)s\t%(duration_string)s\t%(channel)s",
                 "--no-warnings",
                 "--no-playlist",
-                &query,
+                &normalized_query,
             ])
+            .args(&cookie_args)
             .output()
             .await
             .map_err(|e| format!("Failed to spawn yt-dlp for URL lookup: {}", e))?;
