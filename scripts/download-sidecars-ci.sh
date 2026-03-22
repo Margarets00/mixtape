@@ -5,7 +5,7 @@
 # Usage: bash download-sidecars-ci.sh [universal-apple-darwin|x86_64-pc-windows-msvc|x86_64-unknown-linux-gnu]
 set -euo pipefail
 
-BINARIES_DIR="$(cd "$(dirname "$0")/../src-tauri/binaries" && pwd)"
+BINARIES_DIR="$(cd "$(dirname "$0")/.." && pwd)/src-tauri/binaries"
 mkdir -p "$BINARIES_DIR"
 
 BUILD_TARGET="${1:-}"
