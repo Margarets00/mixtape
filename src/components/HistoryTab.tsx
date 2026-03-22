@@ -1,8 +1,13 @@
 import { useState, useEffect } from 'react';
 import { load } from '@tauri-apps/plugin-store';
-import type { HistoryEntry } from '../App';
+import type { HistoryEntry, QueueItem, QueueAction } from '../App';
 
-export function HistoryTab() {
+interface HistoryTabProps {
+  dispatch: React.Dispatch<QueueAction>;
+  queue: QueueItem[];
+}
+
+export function HistoryTab({ dispatch, queue }: HistoryTabProps) {
   const [entries, setEntries] = useState<HistoryEntry[]>([]);
 
   useEffect(() => {
@@ -47,6 +52,22 @@ export function HistoryTab() {
               {entry.channelName} | {new Date(entry.downloadedAt).toLocaleDateString()}
             </div>
           </div>
+          <button
+            disabled={queue.some((i) => i.id === entry.videoId && i.status.type !== 'done')}
+            onClick={() => dispatch({ type: 'ADD_ITEM', item: { id: entry.videoId, title: entry.title, channelName: entry.channelName, thumbnailUrl: entry.thumbnailUrl, duration: '' } })}
+            style={{
+              fontFamily: 'var(--font-display)',
+              fontSize: '10px',
+              padding: '2px 8px',
+              background: 'var(--color-green)',
+              border: 'var(--border-style)',
+              cursor: 'pointer',
+              whiteSpace: 'nowrap',
+              ...(queue.some((i) => i.id === entry.videoId && i.status.type !== 'done') ? { opacity: 0.4, cursor: 'not-allowed' } : {}),
+            }}
+          >
+            + QUEUE
+          </button>
         </div>
       ))}
     </div>

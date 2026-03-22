@@ -221,7 +221,7 @@ function App() {
             onHistoryUpdate={refreshDownloadedIds}
           />
         )}
-        {activeTab === 'history' && <HistoryTab />}
+        {activeTab === 'history' && <HistoryTab dispatch={dispatch} queue={queue} />}
         {activeTab === 'settings' && <SettingsTab />}
       </main>
 
