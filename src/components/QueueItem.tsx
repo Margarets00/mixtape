@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { invoke } from '@tauri-apps/api/core';
 import type { QueueItem } from '../App';
 
@@ -18,6 +18,8 @@ export function QueueItemRow({ item, onCancel, onRetry, onSetMetadata }: QueueIt
 
   const getBackground = () => {
     switch (status.type) {
+      case 'starting':
+        return 'rgba(183, 213, 255, 0.2)';
       case 'downloading':
         return 'rgba(255, 183, 213, 0.3)';
       case 'converting':
@@ -33,6 +35,18 @@ export function QueueItemRow({ item, onCancel, onRetry, onSetMetadata }: QueueIt
     }
   };
 
+  const [elapsedSecs, setElapsedSecs] = useState(0);
+
+  useEffect(() => {
+    if (status.type !== 'converting') {
+      setElapsedSecs(0);
+      return;
+    }
+    setElapsedSecs(0);
+    const interval = setInterval(() => setElapsedSecs((s) => s + 1), 1000);
+    return () => clearInterval(interval);
+  }, [status.type]);
+
   const handleCancel = async () => {
     await invoke('cancel_download', { itemId: item.id }).catch(console.error);
     onCancel(item.id);
@@ -40,6 +54,12 @@ export function QueueItemRow({ item, onCancel, onRetry, onSetMetadata }: QueueIt
 
   return (
     <div>
+      <style>{`
+        @keyframes shimmer {
+          0% { background-position: 200% 0; }
+          100% { background-position: -200% 0; }
+        }
+      `}</style>
       <div
         style={{
           display: 'flex',
@@ -52,6 +72,23 @@ export function QueueItemRow({ item, onCancel, onRetry, onSetMetadata }: QueueIt
           overflow: 'hidden',
         }}
       >
+        {/* Shimmer fill for starting state */}
+        {status.type === 'starting' && (
+          <div
+            style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              width: '100%',
+              height: '100%',
+              background: 'linear-gradient(90deg, rgba(183, 213, 255, 0.2) 25%, rgba(183, 213, 255, 0.4) 50%, rgba(183, 213, 255, 0.2) 75%)',
+              backgroundSize: '200% 100%',
+              animation: 'shimmer 1.5s infinite',
+              zIndex: 0,
+            }}
+          />
+        )}
+
         {/* Inline progress bar fill for downloading state */}
         {status.type === 'downloading' && (
           <div
@@ -131,6 +168,37 @@ export function QueueItemRow({ item, onCancel, onRetry, onSetMetadata }: QueueIt
               </>
             )}
 
+            {status.type === 'starting' && (
+              <>
+                <div
+                  style={{
+                    fontFamily: 'var(--font-body)',
+                    fontSize: '20px',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    whiteSpace: 'nowrap',
+                  }}
+                >
+                  {item.metadataOverrides?.title || item.title}
+                </div>
+                <div
+                  style={{
+                    fontFamily: 'var(--font-display)',
+                    fontSize: '10px',
+                    color: 'var(--color-blue-dark)',
+                    background: 'linear-gradient(90deg, var(--color-blue) 25%, var(--color-white) 50%, var(--color-blue) 75%)',
+                    backgroundSize: '200% 100%',
+                    animation: 'shimmer 1.5s infinite',
+                    WebkitBackgroundClip: 'text',
+                    WebkitTextFillColor: 'transparent',
+                    display: 'inline-block',
+                  }}
+                >
+                  starting...
+                </div>
+              </>
+            )}
+
             {status.type === 'downloading' && (
               <div
                 style={{
@@ -150,7 +218,7 @@ export function QueueItemRow({ item, onCancel, onRetry, onSetMetadata }: QueueIt
                   animation: 'blink 1s infinite',
                 }}
               >
-                CONVERTING...
+                {`CONVERTING... (${elapsedSecs}s)`}
               </div>
             )}
 
@@ -227,7 +295,7 @@ export function QueueItemRow({ item, onCancel, onRetry, onSetMetadata }: QueueIt
               </button>
             )}
 
-            {(status.type === 'pending' || status.type === 'downloading' || status.type === 'retrying') && (
+            {(status.type === 'pending' || status.type === 'starting' || status.type === 'downloading' || status.type === 'retrying') && (
               <button
                 type="button"
                 onClick={handleCancel}
