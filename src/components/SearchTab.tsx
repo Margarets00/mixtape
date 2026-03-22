@@ -279,6 +279,12 @@ export function SearchTab({
 
   return (
     <div>
+      <style>{`
+        @keyframes shimmer {
+          0% { background-position: 200% 0; }
+          100% { background-position: -200% 0; }
+        }
+      `}</style>
       {toast && (
         <div
           style={{
@@ -418,12 +424,6 @@ export function SearchTab({
             {/* Skeleton loading rows while streaming */}
             {playlistLoading && (
               <>
-                <style>{`
-                  @keyframes shimmer {
-                    0% { background-position: 200% 0; }
-                    100% { background-position: -200% 0; }
-                  }
-                `}</style>
                 {[1, 2, 3].map((i) => (
                   <div
                     key={`skeleton-${i}`}
@@ -510,17 +510,34 @@ export function SearchTab({
           )}
 
           {isSearching && (
-            <div style={{ textAlign: 'center', paddingTop: '32px' }}>
+            <>
               <div
                 style={{
                   fontFamily: 'var(--font-display)',
                   fontSize: '12px',
                   color: 'var(--color-pink-dark)',
+                  textAlign: 'center',
+                  paddingTop: '32px',
+                  paddingBottom: '12px',
                 }}
               >
                 ~ searching... ~
               </div>
-            </div>
+              {[1, 2, 3].map((i) => (
+                <div
+                  key={`search-skeleton-${i}`}
+                  style={{
+                    height: '72px',
+                    marginBottom: '1px',
+                    background:
+                      'linear-gradient(90deg, var(--color-pink) 25%, var(--color-white) 50%, var(--color-pink) 75%)',
+                    backgroundSize: '200% 100%',
+                    animation: 'shimmer 1.5s infinite',
+                    border: 'var(--border-style)',
+                  }}
+                />
+              ))}
+            </>
           )}
 
           {hasSearched && !isSearching && results.length === 0 && (
