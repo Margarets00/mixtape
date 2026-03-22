@@ -72,7 +72,7 @@ pub async fn queue_download(
     };
 
     // Pre-fetch title for clean filename (outside the retry loop — happens once)
-    let title_output = tokio::process::Command::new(&ytdlp_path)
+    let title_output = crate::download::ytdlp_command(&ytdlp_path)
         .args(["--print", "title", &video_url])
         .args(&cookie_args)
         .output()
@@ -125,7 +125,7 @@ pub async fn queue_download(
             }
 
             // Spawn yt-dlp download process for this attempt
-            let mut child = match tokio::process::Command::new(&ytdlp_path)
+            let mut child = match crate::download::ytdlp_command(&ytdlp_path)
                 .args([
                     "-x",
                     "--audio-format",

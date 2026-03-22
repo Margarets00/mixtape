@@ -210,7 +210,7 @@ pub async fn search_ytdlp(query: String) -> Result<Vec<SearchResult>, String> {
 
     let search_arg = format!("ytsearch5:{}", query);
 
-    let output = Command::new(&ytdlp_path)
+    let output = crate::download::ytdlp_command(&ytdlp_path)
         .args([
             "--print",
             "%(id)s\t%(title)s\t%(thumbnail)s\t%(duration_string)s\t%(channel)s",
@@ -279,7 +279,7 @@ pub async fn search(
             crate::cookies::cookie_file_args(&state)
         };
 
-        let output = Command::new(&ytdlp_path)
+        let output = crate::download::ytdlp_command(&ytdlp_path)
             .args([
                 "--print",
                 "%(id)s\t%(title)s\t%(thumbnail)s\t%(duration_string)s\t%(channel)s",
@@ -351,7 +351,7 @@ pub async fn search(
     let ytdlp_path = crate::download::locate_sidecar("yt-dlp")?;
     let search_arg = format!("ytsearch5:{}", query);
 
-    let mut child = Command::new(&ytdlp_path)
+    let mut child = crate::download::ytdlp_command(&ytdlp_path)
         .args([
             "--print",
             "%(id)s\t%(title)s\t%(thumbnail)s\t%(duration_string)s\t%(channel)s",
@@ -440,7 +440,7 @@ pub async fn search_playlist(
 ) -> Result<(), String> {
     let ytdlp_path = crate::download::locate_sidecar("yt-dlp")?;
 
-    let mut child = tokio::process::Command::new(&ytdlp_path)
+    let mut child = crate::download::ytdlp_command(&ytdlp_path)
         .args([
             "--flat-playlist",
             "--print",

@@ -68,6 +68,16 @@ pub fn locate_sidecar(name: &str) -> Result<std::path::PathBuf, String> {
     Err(format!("sidecar '{}' not found in {:?}", name, dir))
 }
 
+/// Create a Command for a yt-dlp sidecar with UTF-8 forced on Windows.
+/// On Windows, yt-dlp (Python) defaults to the system code page (e.g. CP949),
+/// which corrupts Korean and other non-ASCII output. PYTHONUTF8=1 fixes this.
+pub fn ytdlp_command(path: &std::path::Path) -> tokio::process::Command {
+    let mut cmd = tokio::process::Command::new(path);
+    #[cfg(target_os = "windows")]
+    cmd.env("PYTHONUTF8", "1");
+    cmd
+}
+
 pub fn parse_yt_dlp_line(line: &str) -> Option<DownloadEvent> {
     if line.starts_with("PROGRESS ") {
         let parts: Vec<&str> = line.splitn(4, ' ').collect();
