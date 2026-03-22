@@ -84,6 +84,7 @@ export function SearchTab({
   const { query, results, isSearching, hasSearched, usedFallback, isPlaylist, playlistTracks, selectedIds, playlistLoading } = searchState;
 
   const [toast, setToast] = useState<string | null>(null);
+  const [isAddingUrl, setIsAddingUrl] = useState(false);
 
   const showToast = (msg: string) => {
     setToast(msg);
@@ -141,10 +142,9 @@ export function SearchTab({
       return;
     }
 
-    // YouTube single video URL branch
+    // YouTube single video URL branch — skip search, add directly to queue
     if (isYoutubeUrl(trimmed) && !isPlaylistUrl(trimmed)) {
       const cleanUrl = stripRadioParams(trimmed);
-      // video ID 추출: watch?v=ID 또는 youtu.be/ID
       const videoId = (() => {
         try {
           const parsed = new URL(cleanUrl);
@@ -160,13 +160,14 @@ export function SearchTab({
         return;
       }
 
-      // 이미 큐에 있으면 중복 추가 안 함 (queueReducer도 막지만 UX 피드백 제공)
       if (queue.some((item) => item.id === videoId)) {
         showToast('~ 이미 큐에 있어요 ~');
         return;
       }
 
-      update({ isSearching: true });
+      setIsAddingUrl(true);
+      // 이전 검색 결과 지우기
+      update({ results: [], hasSearched: false, isPlaylist: false });
 
       try {
         const store = await load('app-settings.json', { defaults: {} });
@@ -180,7 +181,6 @@ export function SearchTab({
         const track = response.results[0];
         if (!track) {
           showToast('~ 영상 정보를 가져올 수 없어요 ~');
-          update({ isSearching: false });
           return;
         }
 
@@ -195,14 +195,13 @@ export function SearchTab({
           },
         });
 
-        // 쿼리 초기화 + 검색 상태 리셋
-        onSearchStateChange({ ...searchStateRef.current, query: '', isSearching: false });
         showToast(`~ 큐에 추가했어요: ${track.title} ~`);
         onNavigateQueue?.();
       } catch (err) {
         console.error('URL fetch failed:', err);
         showToast('~ 영상 정보를 가져오는 데 실패했어요 ~');
-        update({ isSearching: false });
+      } finally {
+        setIsAddingUrl(false);
       }
       return;
     }
@@ -309,7 +308,7 @@ export function SearchTab({
         <button
           type="button"
           onClick={handleSearch}
-          disabled={isSearching || playlistLoading || !query.trim()}
+          disabled={isSearching || isAddingUrl || playlistLoading || !query.trim()}
           style={{ flexShrink: 0 }}
         >
           SEARCH
