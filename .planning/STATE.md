@@ -119,9 +119,10 @@ None yet.
 | # | Description | Date | Commit | Directory |
 |---|-------------|------|--------|-----------|
 | 260322-mr7 | 탭을 이동해도 search 결과가 사라지지 않도록 수정 | 2026-03-22 | 6a6ee8c | [260322-mr7-search](./quick/260322-mr7-search/) |
+| 260322-n0q | yt-dlp 쿠키 자동 추출 (--cookies-from-browser 주입, SettingsTab UI) | 2026-03-22 | 907bad7 | [260322-n0q-yt-dlp](./quick/260322-n0q-yt-dlp/) |
 
 ## Session Continuity
 
-Last session: 2026-03-22T07:23:03.657Z
-Stopped at: Completed quick task 260322-mr7: 탭을 이동해도 search 결과가 사라지지 않도록 수정
+Last session: 2026-03-22T08:38:00Z
+Stopped at: Checkpoint — quick task 260322-n0q tasks 1-2 complete, awaiting human verify at Task 3
 Resume file: None
