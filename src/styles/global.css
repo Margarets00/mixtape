@@ -1,4 +1,16 @@
 @font-face {
+  font-family: 'Press Start 2P';
+  src: url('/PressStart2P.woff2') format('woff2');
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'VT323';
+  src: url('/VT323.woff2') format('woff2');
+  font-display: swap;
+}
+
+@font-face {
   font-family: 'exqt';
   src: url('/exqt.ttf') format('truetype');
   unicode-range: U+AC00-D7A3, U+1100-11FF, U+3130-318F, U+A960-A97F, U+D7B0-D7FF;

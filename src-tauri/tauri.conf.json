@@ -1,6 +1,6 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "YouTube Music Downloader",
+  "productName": "mixtape",
   "version": "0.1.0",
   "identifier": "com.youtube-dl.app",
   "build": {
@@ -21,7 +21,10 @@
       "csp": "default-src 'self'; media-src 'self' asset: http://asset.localhost; img-src 'self' asset: http://asset.localhost https: data:",
       "assetProtocol": {
         "enable": true,
-        "scope": ["$TEMP/**", "$TEMP/**/*"]
+        "scope": [
+          "$TEMP/**",
+          "$TEMP/**/*"
+        ]
       }
     }
   },
