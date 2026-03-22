@@ -122,9 +122,10 @@ None yet.
 | 260322-n0q | yt-dlp 쿠키 자동 추출 (--cookies-from-browser 주입, SettingsTab UI) | 2026-03-22 | 907bad7 | [260322-n0q-yt-dlp](./quick/260322-n0q-yt-dlp/) |
 | 260322-o53 | 쿠키 temp 파일 1회 추출 + URL 검색 버그 3건 수정 (bare URL, 쿠키 주입, Radio Mix) | 2026-03-22 | 53b1e00 | [260322-o53-temp-url](./quick/260322-o53-temp-url/) |
 | 260322-otd | YouTube URL 붙여넣기 → radio param strip → 검색 UI 없이 큐 직행 + 토스트 + 큐탭 이동 | 2026-03-22 | f2055a0 | [260322-otd-url-radio-mix-strip](./quick/260322-otd-url-radio-mix-strip/) |
+| 260322-sek | 검색 중 스켈레톤 로딩 행 3개 + shimmer 애니메이션으로 로딩 피드백 강화 | 2026-03-22 | 625010f | [260322-sek-skeleton-searching](./quick/260322-sek-skeleton-searching/) |
 
 ## Session Continuity
 
-Last session: 2026-03-22T08:55:07Z
-Stopped at: Completed quick task 260322-otd (YouTube URL direct-to-queue + radio param strip)
+Last session: 2026-03-22T09:10:00Z
+Stopped at: Completed quick task 260322-sek (search skeleton loading rows)
 Resume file: None
