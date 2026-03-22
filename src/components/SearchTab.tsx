@@ -339,9 +339,9 @@ export function SearchTab({
   return (
     <div>
       <style>{`
-        @keyframes shimmer {
-          0% { background-position: 200% 0; }
-          100% { background-position: -200% 0; }
+        @keyframes pixel-march {
+          from { background-position: 0 0; }
+          to   { background-position: 32px 0; }
         }
       `}</style>
       {toast && (
@@ -488,11 +488,13 @@ export function SearchTab({
                     key={`skeleton-${i}`}
                     style={{
                       height: '52px',
-                      marginBottom: '1px',
+                      marginBottom: '4px',
                       background:
-                        'linear-gradient(90deg, var(--color-pink) 25%, var(--color-white) 50%, var(--color-pink) 75%)',
-                      backgroundSize: '200% 100%',
-                      animation: 'shimmer 1.5s infinite',
+                        'repeating-linear-gradient(90deg, var(--color-pink-dark) 0px, var(--color-pink-dark) 8px, var(--color-pink) 8px, var(--color-pink) 16px, var(--color-white) 16px, var(--color-white) 24px, var(--color-pink) 24px, var(--color-pink) 32px)',
+                      backgroundSize: '32px 100%',
+                      animation: `pixel-march ${0.5 + i * 0.1}s steps(4) infinite`,
+                      border: 'var(--border-style)',
+                      boxShadow: 'var(--shadow-retro)',
                     }}
                   />
                 ))}
@@ -587,12 +589,13 @@ export function SearchTab({
                   key={`search-skeleton-${i}`}
                   style={{
                     height: '72px',
-                    marginBottom: '1px',
+                    marginBottom: '4px',
                     background:
-                      'linear-gradient(90deg, var(--color-pink) 25%, var(--color-white) 50%, var(--color-pink) 75%)',
-                    backgroundSize: '200% 100%',
-                    animation: 'shimmer 1.5s infinite',
+                      'repeating-linear-gradient(90deg, var(--color-pink-dark) 0px, var(--color-pink-dark) 8px, var(--color-pink) 8px, var(--color-pink) 16px, var(--color-white) 16px, var(--color-white) 24px, var(--color-pink) 24px, var(--color-pink) 32px)',
+                    backgroundSize: '32px 100%',
+                    animation: `pixel-march ${0.5 + i * 0.1}s steps(4) infinite`,
                     border: 'var(--border-style)',
+                    boxShadow: 'var(--shadow-retro)',
                   }}
                 />
               ))}

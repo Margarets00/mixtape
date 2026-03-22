@@ -55,9 +55,9 @@ export function QueueItemRow({ item, onCancel, onRetry, onSetMetadata }: QueueIt
   return (
     <div>
       <style>{`
-        @keyframes shimmer {
-          0% { background-position: 200% 0; }
-          100% { background-position: -200% 0; }
+        @keyframes pixel-march {
+          from { background-position: 0 0; }
+          to   { background-position: 32px 0; }
         }
       `}</style>
       <div
@@ -81,9 +81,10 @@ export function QueueItemRow({ item, onCancel, onRetry, onSetMetadata }: QueueIt
               left: 0,
               width: '100%',
               height: '100%',
-              background: 'linear-gradient(90deg, rgba(183, 213, 255, 0.2) 25%, rgba(183, 213, 255, 0.4) 50%, rgba(183, 213, 255, 0.2) 75%)',
-              backgroundSize: '200% 100%',
-              animation: 'shimmer 1.5s infinite',
+              background:
+                'repeating-linear-gradient(90deg, rgba(183,213,255,0.5) 0px, rgba(183,213,255,0.5) 8px, rgba(255,255,250,0.8) 8px, rgba(255,255,250,0.8) 16px, rgba(91,164,212,0.3) 16px, rgba(91,164,212,0.3) 24px, rgba(255,255,250,0.8) 24px, rgba(255,255,250,0.8) 32px)',
+              backgroundSize: '32px 100%',
+              animation: 'pixel-march 0.6s steps(4) infinite',
               zIndex: 0,
             }}
           />
