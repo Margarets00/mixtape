@@ -60,15 +60,9 @@ function stripRadioParams(url: string): string {
 }
 
 function isPlaylistUrl(url: string): boolean {
-  // /playlist?list= format (standard playlist)
-  if (url.includes('/playlist?list=') || (url.includes('/playlist?') && url.includes('list='))) {
-    return true;
-  }
-  // list=RD... format (YouTube Radio Mix / Auto-generated playlist)
-  if (url.includes('list=RD')) {
-    return true;
-  }
-  return false;
+  // /playlist?list= format only (standard curated playlists)
+  // Radio Mix (list=RD...) is intentionally excluded — treated as single video
+  return url.includes('/playlist?list=') || (url.includes('/playlist?') && url.includes('list='));
 }
 
 export function SearchTab({
@@ -311,7 +305,7 @@ export function SearchTab({
           disabled={isSearching || isAddingUrl || playlistLoading || !query.trim()}
           style={{ flexShrink: 0 }}
         >
-          {isYoutubeUrl(query.trim()) ? 'ADD TO QUEUE' : 'SEARCH'}
+          {isYoutubeUrl(query.trim()) && !isPlaylistUrl(query.trim()) ? 'ADD TO QUEUE' : 'SEARCH'}
         </button>
       </div>
 
