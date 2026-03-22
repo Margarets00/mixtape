@@ -117,8 +117,8 @@ Plans:
 **Plans**: 2 plans
 
 Plans:
-- [ ] 04-01: macOS signing + notarization (app bundle + sidecar binaries, hardened runtime entitlements, notarization CI step, clean-machine smoke test)
-- [ ] 04-02: Windows + Linux packaging + auto-updater (Windows code signing + SmartScreen docs, Linux AppImage/.deb, full CI build matrix macOS ARM+Intel / Windows x64 / Linux x64, Tauri updater plugin integration)
+- [ ] 04-01-PLAN.md — Signing config + updater plugin + CI sidecar script (tauri.conf.json signing/notarization config, Entitlements.plist, tauri-plugin-updater registration, CI sidecar download script for universal macOS, auto-update toast UI)
+- [ ] 04-02-PLAN.md — GitHub Actions release workflow (three-job CI pipeline: macOS universal .dmg + notarize, Windows NSIS + EV sign, Linux AppImage; pre-release checklist checkpoint)
 
 ---
 
@@ -182,5 +182,5 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4
 ---
 
 *Roadmap created: 2026-03-21*
-*Last updated: 2026-03-22 — Phase 3 plans finalized, v2 requirements promoted*
+*Last updated: 2026-03-22 — Phase 4 plans finalized*
 *Granularity: Coarse (4 phases, 11 plans total)*
