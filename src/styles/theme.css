@@ -8,8 +8,8 @@
   --color-yellow:     #FFF5B7;
   --color-white:      #FFFAFA;
   --color-black:      #2D1B1B;
-  --font-display: 'Press Start 2P', monospace;
-  --font-body:    'VT323', monospace;
+  --font-display: 'Press Start 2P', 'exqt', monospace;
+  --font-body:    'VT323', 'exqt', monospace;
   --border-style: 3px solid var(--color-pink-dark);
   --shadow-retro: 4px 4px 0px var(--color-pink-dark);
 }
