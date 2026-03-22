@@ -40,9 +40,14 @@ interface SearchTabProps {
 function isYoutubeUrl(input: string): boolean {
   return (
     input.startsWith('https://www.youtube.com/') ||
-    input.startsWith('https://youtu.be/') ||
+    input.startsWith('https://youtube.com/') ||
     input.startsWith('http://www.youtube.com/') ||
-    input.startsWith('http://youtu.be/')
+    input.startsWith('http://youtube.com/') ||
+    input.startsWith('www.youtube.com/') ||
+    input.startsWith('youtube.com/') ||
+    input.startsWith('https://youtu.be/') ||
+    input.startsWith('http://youtu.be/') ||
+    input.startsWith('youtu.be/')
   );
 }
 
