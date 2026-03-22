@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: unknown
-stopped_at: Completed 04-distribution-04-01-PLAN.md
-last_updated: "2026-03-22T06:56:26.064Z"
+stopped_at: Completed 04-distribution-04-02-PLAN.md
+last_updated: "2026-03-22T07:07:30.730Z"
 progress:
   total_phases: 4
-  completed_phases: 3
+  completed_phases: 4
   total_plans: 11
-  completed_plans: 10
+  completed_plans: 11
 ---
 
 # Project State
@@ -57,6 +57,7 @@ Plan: 2 of 2
 | Phase 03-power-features P02 | 2min | 2 tasks | 3 files |
 | Phase 03-power-features P03 | 5min | 3 tasks | 12 files |
 | Phase 04-distribution P01 | 2min | 2 tasks | 9 files |
+| Phase 04-distribution P02 | 30min | 2 tasks | 1 files |
 
 ## Accumulated Context
 
@@ -96,6 +97,8 @@ Recent decisions affecting current work:
 - [Phase 04-distribution]: tauri-plugin-updater registered via .setup() not .plugin() — updater requires app handle at registration time
 - [Phase 04-distribution]: UPDATER_PUBKEY_PLACEHOLDER and OWNER/REPO are greppable placeholders in tauri.conf.json — must be filled before first release
 - [Phase 04-distribution]: CI sidecar script delegates Windows/Linux to existing download-sidecars.sh via exec — only macOS universal case uses lipo
+- [Phase 04-distribution]: Unsigned builds chosen: no Apple Developer ID signing/notarization, no Windows EV cert — avoids certificate costs for initial release
+- [Phase 04-distribution]: Auto-updater disabled in release workflow: signing removed so latest.json cannot be generated; users update manually via GitHub Releases
 
 ### Pending Todos
 
@@ -113,6 +116,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-22T06:56:26.062Z
-Stopped at: Completed 04-distribution-04-01-PLAN.md
+Last session: 2026-03-22T07:07:30.728Z
+Stopped at: Completed 04-distribution-04-02-PLAN.md
 Resume file: None

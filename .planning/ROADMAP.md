@@ -15,7 +15,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 1: Download Engine** - Sidecar infrastructure + single-URL MP3 download working cross-platform (completed 2026-03-21)
 - [x] **Phase 2: Core UX** - Search, audio preview, cart-style queue — the full core loop (gap closure in progress) (completed 2026-03-21)
 - [x] **Phase 3: Power Features** - Playlist support, filename templates, metadata editing, history (completed 2026-03-21)
-- [ ] **Phase 4: Distribution** - Code signing, notarization, CI/CD build matrix, auto-updater
+- [x] **Phase 4: Distribution** - Code signing, notarization, CI/CD build matrix, auto-updater (completed 2026-03-22)
 
 ## Phase Details
 
@@ -118,7 +118,7 @@ Plans:
 
 Plans:
 - [x] 04-01-PLAN.md — Signing config + updater plugin + CI sidecar script (tauri.conf.json signing/notarization config, Entitlements.plist, tauri-plugin-updater registration, CI sidecar download script for universal macOS, auto-update toast UI)
-- [ ] 04-02-PLAN.md — GitHub Actions release workflow (three-job CI pipeline: macOS universal .dmg + notarize, Windows NSIS + EV sign, Linux AppImage; pre-release checklist checkpoint)
+- [x] 04-02-PLAN.md — GitHub Actions release workflow (three-job CI pipeline: macOS universal .dmg + notarize, Windows NSIS + EV sign, Linux AppImage; pre-release checklist checkpoint)
 
 ---
 
@@ -132,7 +132,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4
 | 1. Download Engine | 3/3 | Complete   | 2026-03-21 |
 | 2. Core UX | 3/3 | Complete    | 2026-03-21 |
 | 3. Power Features | 3/3 | Complete   | 2026-03-21 |
-| 4. Distribution | 0/2 | Not started | - |
+| 4. Distribution | 2/2 | Complete   | 2026-03-22 |
 
 ---
 
