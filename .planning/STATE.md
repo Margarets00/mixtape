@@ -120,9 +120,10 @@ None yet.
 |---|-------------|------|--------|-----------|
 | 260322-mr7 | 탭을 이동해도 search 결과가 사라지지 않도록 수정 | 2026-03-22 | 6a6ee8c | [260322-mr7-search](./quick/260322-mr7-search/) |
 | 260322-n0q | yt-dlp 쿠키 자동 추출 (--cookies-from-browser 주입, SettingsTab UI) | 2026-03-22 | 907bad7 | [260322-n0q-yt-dlp](./quick/260322-n0q-yt-dlp/) |
+| 260322-o53 | 쿠키 temp 파일 1회 추출 + URL 검색 버그 3건 수정 (bare URL, 쿠키 주입, Radio Mix) | 2026-03-22 | 53b1e00 | [260322-o53-temp-url](./quick/260322-o53-temp-url/) |
 
 ## Session Continuity
 
-Last session: 2026-03-22T08:38:00Z
-Stopped at: Checkpoint — quick task 260322-n0q tasks 1-2 complete, awaiting human verify at Task 3
+Last session: 2026-03-22T08:27:54Z
+Stopped at: Completed quick task 260322-o53 (cookie temp caching + URL search bug fixes)
 Resume file: None
