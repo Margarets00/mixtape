@@ -18,8 +18,11 @@ case "$BUILD_TARGET" in
       "https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp_macos"
     cp "$BINARIES_DIR/yt-dlp-aarch64-apple-darwin" \
        "$BINARIES_DIR/yt-dlp-x86_64-apple-darwin"
+    cp "$BINARIES_DIR/yt-dlp-aarch64-apple-darwin" \
+       "$BINARIES_DIR/yt-dlp-universal-apple-darwin"
     chmod +x "$BINARIES_DIR/yt-dlp-aarch64-apple-darwin" \
-              "$BINARIES_DIR/yt-dlp-x86_64-apple-darwin"
+              "$BINARIES_DIR/yt-dlp-x86_64-apple-darwin" \
+              "$BINARIES_DIR/yt-dlp-universal-apple-darwin"
 
     echo "Downloading/preparing ffmpeg (universal macOS via lipo)..."
 
@@ -49,8 +52,10 @@ case "$BUILD_TARGET" in
 
     cp "$BINARIES_DIR/ffmpeg-universal" "$BINARIES_DIR/ffmpeg-aarch64-apple-darwin"
     cp "$BINARIES_DIR/ffmpeg-universal" "$BINARIES_DIR/ffmpeg-x86_64-apple-darwin"
+    cp "$BINARIES_DIR/ffmpeg-universal" "$BINARIES_DIR/ffmpeg-universal-apple-darwin"
     chmod +x "$BINARIES_DIR/ffmpeg-aarch64-apple-darwin" \
-              "$BINARIES_DIR/ffmpeg-x86_64-apple-darwin"
+              "$BINARIES_DIR/ffmpeg-x86_64-apple-darwin" \
+              "$BINARIES_DIR/ffmpeg-universal-apple-darwin"
 
     echo ""
     echo "Sidecars ready for universal-apple-darwin:"
