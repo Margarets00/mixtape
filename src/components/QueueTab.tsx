@@ -169,7 +169,11 @@ export function QueueTab({ queue, dispatch, onNavigateSettings, onHistoryUpdate 
   };
 
   const handleDownloadAll = async () => {
-    if (isDownloadAllDisabled || !saveDir) return;
+    if (isDownloadAllDisabled) return;
+    if (!saveDir) {
+      onNavigateSettings();
+      return;
+    }
     setIsDownloading(true);
 
     // Reset error items to pending before downloading
@@ -179,9 +183,22 @@ export function QueueTab({ queue, dispatch, onNavigateSettings, onHistoryUpdate 
       }
     }
 
+    const downloadWithErrorHandling = async (item: QueueItem) => {
+      try {
+        await downloadItem(item);
+      } catch (e) {
+        console.error('downloadItem failed:', e);
+        dispatch({
+          type: 'UPDATE_STATUS',
+          id: item.id,
+          status: { type: 'error', message: String(e) },
+        });
+      }
+    };
+
     try {
       // Fire all downloads — semaphore in Rust limits concurrency to 2
-      await Promise.allSettled(pendingOrErrorItems.map(downloadItem));
+      await Promise.allSettled(pendingOrErrorItems.map(downloadWithErrorHandling));
     } finally {
       setIsDownloading(false);
     }
@@ -191,7 +208,10 @@ export function QueueTab({ queue, dispatch, onNavigateSettings, onHistoryUpdate 
     const item = queue.find((i) => i.id === id);
     if (!item || !saveDir) return;
     dispatch({ type: 'UPDATE_STATUS', id, status: { type: 'pending' } });
-    downloadItem({ ...item, status: { type: 'pending' } }).catch(console.error);
+    downloadItem({ ...item, status: { type: 'pending' } }).catch((e) => {
+      console.error('retry failed:', e);
+      dispatch({ type: 'UPDATE_STATUS', id, status: { type: 'error', message: String(e) } });
+    });
   };
 
   const handleCancel = (id: string) => {
