@@ -143,7 +143,8 @@ export function SearchTab({
 
     // YouTube single video URL branch — skip search, add directly to queue
     if (isYoutubeUrl(trimmed) && !isPlaylistUrl(trimmed)) {
-      const cleanUrl = stripRadioParams(trimmed);
+      const normalized = trimmed.startsWith('http') ? trimmed : `https://${trimmed}`;
+      const cleanUrl = stripRadioParams(normalized);
       const videoId = (() => {
         try {
           const parsed = new URL(cleanUrl);
