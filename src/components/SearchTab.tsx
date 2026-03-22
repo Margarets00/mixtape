@@ -8,9 +8,18 @@ import { PlaylistTrackRow } from './PlaylistTrackRow';
 import type { PlaylistTrack } from './PlaylistTrackRow';
 import type { QueueAction, QueueItem, PreviewTrack, SearchState } from '../App';
 
-interface SearchResponse {
-  results: SearchResult[];
-  used_fallback: boolean;
+interface SearchEvent {
+  type: 'Result' | 'Done' | 'Error';
+  data?: {
+    id?: string;
+    title?: string;
+    thumbnail_url?: string;
+    duration?: string;
+    channel?: string;
+    total?: number;
+    used_fallback?: boolean;
+    message?: string;
+  };
 }
 
 interface PlaylistTrackEvent {
@@ -173,12 +182,28 @@ export function SearchTab({
         const store = await load('app-settings.json', { defaults: {} });
         const apiKey = await store.get<string | null>('youtube_api_key');
 
-        const response = await invoke<SearchResponse>('search', {
-          query: cleanUrl,
-          apiKey: apiKey || null,
+        const collectedResults: SearchResult[] = [];
+        await new Promise<void>((resolve, reject) => {
+          const onResult = new Channel<SearchEvent>();
+          onResult.onmessage = (event) => {
+            if (event.type === 'Result' && event.data) {
+              collectedResults.push({
+                id: event.data.id ?? '',
+                title: event.data.title ?? '',
+                thumbnail_url: event.data.thumbnail_url ?? '',
+                duration: event.data.duration ?? '?',
+                channel: event.data.channel ?? '',
+              });
+            } else if (event.type === 'Done') {
+              resolve();
+            } else if (event.type === 'Error') {
+              reject(new Error(event.data?.message ?? 'Search error'));
+            }
+          };
+          invoke('search', { query: cleanUrl, apiKey: apiKey || null, onResult }).catch(reject);
         });
 
-        const track = response.results[0];
+        const track = collectedResults[0];
         if (!track) {
           showToast('~ 영상 정보를 가져올 수 없어요 ~');
           return;
@@ -207,23 +232,44 @@ export function SearchTab({
     }
 
     // Normal search
-    update({ isPlaylist: false, isSearching: true, hasSearched: true });
+    onSearchStateChange({
+      ...searchState,
+      isPlaylist: false,
+      isSearching: true,
+      hasSearched: true,
+      results: [],
+    });
 
     try {
       const store = await load('app-settings.json', { defaults: {} });
       const apiKey = await store.get<string | null>('youtube_api_key');
 
-      const response = await invoke<SearchResponse>('search', {
-        query: trimmed,
-        apiKey: apiKey || null,
-      });
+      const onResult = new Channel<SearchEvent>();
+      onResult.onmessage = (event) => {
+        if (event.type === 'Result' && event.data) {
+          const newResult: SearchResult = {
+            id: event.data.id ?? '',
+            title: event.data.title ?? '',
+            thumbnail_url: event.data.thumbnail_url ?? '',
+            duration: event.data.duration ?? '?',
+            channel: event.data.channel ?? '',
+          };
+          onSearchStateChange({
+            ...searchStateRef.current,
+            results: [...searchStateRef.current.results, newResult],
+          });
+        } else if (event.type === 'Done') {
+          onSearchStateChange({
+            ...searchStateRef.current,
+            isSearching: false,
+            usedFallback: event.data?.used_fallback ?? false,
+          });
+        } else if (event.type === 'Error') {
+          onSearchStateChange({ ...searchStateRef.current, results: [], isSearching: false });
+        }
+      };
 
-      onSearchStateChange({
-        ...searchStateRef.current,
-        results: response.results,
-        usedFallback: response.used_fallback,
-        isSearching: false,
-      });
+      await invoke('search', { query: trimmed, apiKey: apiKey || null, onResult });
     } catch (err) {
       console.error('Search failed:', err);
       onSearchStateChange({ ...searchStateRef.current, results: [], isSearching: false });
@@ -564,7 +610,7 @@ export function SearchTab({
             </div>
           )}
 
-          {!isSearching && results.length > 0 && (
+          {results.length > 0 && (
             <div>
               {results.map((result) => (
                 <SearchResultRow
