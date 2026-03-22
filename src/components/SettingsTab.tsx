@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { open } from '@tauri-apps/plugin-dialog';
 import { load } from '@tauri-apps/plugin-store';
+import { invoke } from '@tauri-apps/api/core';
 
 function previewFilename(pattern: string): string {
   if (!pattern.trim()) return 'Bohemian Rhapsody.mp3';
@@ -21,6 +22,8 @@ export function SettingsTab() {
   const [saveDir, setSaveDir] = useState('');
   const [filenamePattern, setFilenamePattern] = useState('');
   const [embedThumbnail, setEmbedThumbnail] = useState(true);
+  const [cookieBrowser, setCookieBrowser] = useState<string | null>(null);
+  const [cookieStatus, setCookieStatus] = useState<'unknown' | 'ok' | 'none'>('unknown');
 
   useEffect(() => {
     (async () => {
@@ -33,6 +36,13 @@ export function SettingsTab() {
       if (pattern) setFilenamePattern(pattern);
       const thumb = await store.get<boolean | null>('embed_thumbnail');
       if (thumb !== null && thumb !== undefined) setEmbedThumbnail(thumb);
+      const savedBrowser = await store.get<string | null>('cookie_browser');
+      if (savedBrowser) {
+        setCookieBrowser(savedBrowser);
+        setCookieStatus('ok');
+      } else {
+        setCookieStatus('none');
+      }
     })();
   }, []);
 
@@ -64,6 +74,15 @@ export function SettingsTab() {
     setEmbedThumbnail(checked);
     const store = await load('app-settings.json', { defaults: {} });
     await store.set('embed_thumbnail', checked);
+    await store.save();
+  };
+
+  const handleSelectBrowser = async (browser: string | null) => {
+    setCookieBrowser(browser);
+    setCookieStatus(browser ? 'ok' : 'none');
+    await invoke('set_cookie_browser', { browser });
+    const store = await load('app-settings.json', { defaults: {} });
+    await store.set('cookie_browser', browser);
     await store.save();
   };
 
@@ -222,7 +241,7 @@ export function SettingsTab() {
       </div>
 
       {/* Thumbnail Embed section */}
-      <div>
+      <div style={{ marginBottom: '32px' }}>
         <div
           style={{
             fontFamily: 'var(--font-display)',
@@ -250,6 +269,48 @@ export function SettingsTab() {
           >
             Embed YouTube thumbnail as album art in MP3
           </label>
+        </div>
+      </div>
+
+      {/* Cookie Browser section */}
+      <div style={{ marginBottom: '32px' }}>
+        <div style={{ fontFamily: 'var(--font-display)', fontSize: '10px', marginBottom: '8px', color: 'var(--color-black)' }}>
+          COOKIE SOURCE
+        </div>
+        <div style={{ fontFamily: 'var(--font-body)', fontSize: '14px', color: cookieStatus === 'ok' ? 'var(--color-green-dark)' : 'var(--color-pink-dark)', marginBottom: '8px' }}>
+          {cookieStatus === 'ok' && cookieBrowser
+            ? `쿠키 사용 중: ${cookieBrowser}`
+            : '쿠키 미사용 (Sign in 에러 발생 시 브라우저 선택)'}
+        </div>
+        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+          {(['chrome', 'safari', 'firefox', 'brave', 'edge'] as const).map((b) => (
+            <button
+              key={b}
+              type="button"
+              onClick={() => handleSelectBrowser(cookieBrowser === b ? null : b)}
+              style={{
+                fontFamily: 'var(--font-display)',
+                fontSize: '10px',
+                background: cookieBrowser === b ? 'var(--color-pink)' : undefined,
+                border: 'var(--border-style)',
+                padding: '4px 10px',
+              }}
+            >
+              {cookieBrowser === b ? `[${b.toUpperCase()}] \u2713` : b.toUpperCase()}
+            </button>
+          ))}
+          {cookieBrowser && (
+            <button
+              type="button"
+              onClick={() => handleSelectBrowser(null)}
+              style={{ fontFamily: 'var(--font-display)', fontSize: '10px', padding: '4px 10px' }}
+            >
+              [OFF]
+            </button>
+          )}
+        </div>
+        <div style={{ fontFamily: 'var(--font-body)', fontSize: '13px', color: 'var(--color-black)', opacity: 0.5, marginTop: '6px' }}>
+          ~ 해당 브라우저로 YouTube에 로그인된 상태여야 합니다 ~
         </div>
       </div>
     </div>
