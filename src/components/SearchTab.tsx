@@ -1,4 +1,4 @@
-import { useRef, useEffect } from 'react';
+import { useRef, useEffect, useState } from 'react';
 import { invoke } from '@tauri-apps/api/core';
 import { Channel } from '@tauri-apps/api/core';
 import { load } from '@tauri-apps/plugin-store';
@@ -31,9 +31,32 @@ interface SearchTabProps {
   queue: QueueItem[];
   onPreview: (track: PreviewTrack) => void;
   onNavigateSettings: () => void;
+  onNavigateQueue?: () => void;
   downloadedIds?: Set<string>;
   searchState: SearchState;
   onSearchStateChange: (s: SearchState) => void;
+}
+
+function isYoutubeUrl(input: string): boolean {
+  return (
+    input.startsWith('https://www.youtube.com/') ||
+    input.startsWith('https://youtu.be/') ||
+    input.startsWith('http://www.youtube.com/') ||
+    input.startsWith('http://youtu.be/')
+  );
+}
+
+function stripRadioParams(url: string): string {
+  try {
+    const parsed = new URL(url);
+    parsed.searchParams.delete('start_radio');
+    parsed.searchParams.delete('list');
+    // list=PL... (일반 플레이리스트)는 지우면 안 되지만,
+    // 이 함수는 isYoutubeUrl() && !isPlaylistUrl() 분기에서만 호출되므로 안전.
+    return parsed.toString();
+  } catch {
+    return url;
+  }
 }
 
 function isPlaylistUrl(url: string): boolean {
@@ -53,11 +76,19 @@ export function SearchTab({
   queue,
   onPreview,
   onNavigateSettings,
+  onNavigateQueue,
   downloadedIds,
   searchState,
   onSearchStateChange,
 }: SearchTabProps) {
   const { query, results, isSearching, hasSearched, usedFallback, isPlaylist, playlistTracks, selectedIds, playlistLoading } = searchState;
+
+  const [toast, setToast] = useState<string | null>(null);
+
+  const showToast = (msg: string) => {
+    setToast(msg);
+    setTimeout(() => setToast(null), 3000);
+  };
 
   // Keep a ref to latest searchState for use inside async callbacks
   const searchStateRef = useRef(searchState);
@@ -107,6 +138,72 @@ export function SearchTab({
       };
 
       await invoke('search_playlist', { url: trimmed, onTrack });
+      return;
+    }
+
+    // YouTube single video URL branch
+    if (isYoutubeUrl(trimmed) && !isPlaylistUrl(trimmed)) {
+      const cleanUrl = stripRadioParams(trimmed);
+      // video ID 추출: watch?v=ID 또는 youtu.be/ID
+      const videoId = (() => {
+        try {
+          const parsed = new URL(cleanUrl);
+          if (parsed.hostname === 'youtu.be') return parsed.pathname.slice(1);
+          return parsed.searchParams.get('v') ?? '';
+        } catch {
+          return '';
+        }
+      })();
+
+      if (!videoId) {
+        showToast('~ URL에서 영상 ID를 찾을 수 없어요 ~');
+        return;
+      }
+
+      // 이미 큐에 있으면 중복 추가 안 함 (queueReducer도 막지만 UX 피드백 제공)
+      if (queue.some((item) => item.id === videoId)) {
+        showToast('~ 이미 큐에 있어요 ~');
+        return;
+      }
+
+      update({ isSearching: true });
+
+      try {
+        const store = await load('app-settings.json', { defaults: {} });
+        const apiKey = await store.get<string | null>('youtube_api_key');
+
+        const response = await invoke<SearchResponse>('search', {
+          query: cleanUrl,
+          apiKey: apiKey || null,
+        });
+
+        const track = response.results[0];
+        if (!track) {
+          showToast('~ 영상 정보를 가져올 수 없어요 ~');
+          update({ isSearching: false });
+          return;
+        }
+
+        dispatch({
+          type: 'ADD_ITEM',
+          item: {
+            id: track.id,
+            title: track.title,
+            channelName: track.channel,
+            thumbnailUrl: track.thumbnail_url,
+            duration: track.duration,
+          },
+        });
+
+        // 쿼리 초기화 + 검색 상태 리셋
+        onSearchStateChange({ ...searchStateRef.current, query: '', isSearching: false });
+        showToast(`~ 큐에 추가했어요: ${track.title} ~`);
+        onNavigateQueue?.();
+      } catch (err) {
+        console.error('URL fetch failed:', err);
+        showToast('~ 영상 정보를 가져오는 데 실패했어요 ~');
+        update({ isSearching: false });
+      }
       return;
     }
 
@@ -183,6 +280,22 @@ export function SearchTab({
 
   return (
     <div>
+      {toast && (
+        <div
+          style={{
+            background: 'var(--color-pink)',
+            border: 'var(--border-style)',
+            padding: '8px 16px',
+            marginBottom: '12px',
+            fontFamily: 'var(--font-body)',
+            fontSize: '18px',
+            color: 'var(--color-blue-dark)',
+          }}
+        >
+          {toast}
+        </div>
+      )}
+
       {/* Search input row */}
       <div style={{ display: 'flex', gap: '8px', marginBottom: '16px' }}>
         <input
