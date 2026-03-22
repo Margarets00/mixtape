@@ -36,8 +36,11 @@ pub fn locate_sidecar(name: &str) -> Result<std::path::PathBuf, String> {
     let exe = std::env::current_exe().map_err(|e| format!("current_exe: {}", e))?;
     let dir = exe.parent().ok_or("no parent dir for executable")?;
 
+    // On Windows binaries need .exe extension
+    let ext = if cfg!(target_os = "windows") { ".exe" } else { "" };
+
     // Dev mode: no triple suffix
-    let simple = dir.join(name);
+    let simple = dir.join(format!("{}{}", name, ext));
     if simple.exists() {
         return Ok(simple);
     }
@@ -56,7 +59,7 @@ pub fn locate_sidecar(name: &str) -> Result<std::path::PathBuf, String> {
     };
 
     if !triple.is_empty() {
-        let with_triple = dir.join(format!("{}-{}", name, triple));
+        let with_triple = dir.join(format!("{}-{}{}", name, triple, ext));
         if with_triple.exists() {
             return Ok(with_triple);
         }
