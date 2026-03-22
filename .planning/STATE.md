@@ -114,8 +114,14 @@ None yet.
 - [Open] Minimum macOS version not decided. Affects WebView codec support for audio preview.
 - [Open] Linux — first-class target or best-effort? Affects Phase 2 verification matrix.
 
+### Quick Tasks Completed
+
+| # | Description | Date | Commit | Directory |
+|---|-------------|------|--------|-----------|
+| 260322-mr7 | 탭을 이동해도 search 결과가 사라지지 않도록 수정 | 2026-03-22 | 6a6ee8c | [260322-mr7-search](./quick/260322-mr7-search/) |
+
 ## Session Continuity
 
-Last session: 2026-03-22T07:07:30.728Z
-Stopped at: Completed 04-distribution-04-02-PLAN.md
+Last session: 2026-03-22T07:23:03.657Z
+Stopped at: Completed quick task 260322-mr7: 탭을 이동해도 search 결과가 사라지지 않도록 수정
 Resume file: None
