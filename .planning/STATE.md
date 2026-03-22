@@ -125,9 +125,10 @@ None yet.
 | 260322-sek | 검색 중 스켈레톤 로딩 행 3개 + shimmer 애니메이션으로 로딩 피드백 강화 | 2026-03-22 | 625010f | [260322-sek-skeleton-searching](./quick/260322-sek-skeleton-searching/) |
 | 260322-sln | search() Channel 스트리밍 전환 — yt-dlp 결과 1개씩 실시간 렌더링 | 2026-03-22 | d5195ab | [260322-sln-search-ytdlp-channel-1](./quick/260322-sln-search-ytdlp-channel-1/) |
 | 260323-19l | Starting shimmer UI + converting elapsed counter + search elapsed counter | 2026-03-23 | 28126dd | [260323-19l-download-search-frozen-starting-converti](./quick/260323-19l-download-search-frozen-starting-converti/) |
+| 260323-1el | HistoryTab + QUEUE re-queue button per entry, disabled when item active in queue | 2026-03-23 | 35ef5c5 | [260323-1el-historytab](./quick/260323-1el-historytab/) |
 
 ## Session Continuity
 
-Last session: 2026-03-23T15:59:04Z
-Stopped at: Completed quick task 260323-19l (download/search frozen UI gaps)
+Last session: 2026-03-23T16:10:00Z
+Stopped at: Completed quick task 260323-1el (HistoryTab re-queue button)
 Resume file: None
