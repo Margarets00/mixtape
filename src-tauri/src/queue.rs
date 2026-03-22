@@ -58,6 +58,9 @@ pub async fn queue_download(
     // 2-second delay between download starts (QUEUE-04)
     tokio::time::sleep(std::time::Duration::from_secs(2)).await;
 
+    // Emit Starting immediately after delay — covers the title-fetch gap
+    let _ = on_event.send(crate::download::DownloadEvent::Starting);
+
     let ytdlp_path = crate::download::locate_sidecar("yt-dlp")?;
     let ffmpeg_path = crate::download::locate_sidecar("ffmpeg")?;
     let ffmpeg_str = ffmpeg_path.to_string_lossy().to_string();

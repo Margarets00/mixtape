@@ -5,7 +5,7 @@ import type { QueueAction, QueueItem, HistoryEntry } from '../App';
 import { QueueItemRow } from './QueueItem';
 
 interface DownloadEvent {
-  type: 'Progress' | 'Postprocessing' | 'Done' | 'Error' | 'RetryWait';
+  type: 'Starting' | 'Progress' | 'Postprocessing' | 'Done' | 'Error' | 'RetryWait';
   data?: {
     percent?: number;
     speed?: string;
@@ -92,6 +92,13 @@ export function QueueTab({ queue, dispatch, onNavigateSettings, onHistoryUpdate 
 
     onEvent.onmessage = (event: DownloadEvent) => {
       switch (event.type) {
+        case 'Starting':
+          dispatch({
+            type: 'UPDATE_STATUS',
+            id: item.id,
+            status: { type: 'starting' },
+          });
+          break;
         case 'Progress':
           dispatch({
             type: 'UPDATE_STATUS',

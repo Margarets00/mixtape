@@ -40,6 +40,7 @@ const INITIAL_SEARCH_STATE: SearchState = {
 // Queue types — shared across components
 export type QueueItemStatus =
   | { type: 'pending' }
+  | { type: 'starting' }
   | { type: 'downloading'; percent: number; speed: string }
   | { type: 'converting' }
   | { type: 'done'; path: string }

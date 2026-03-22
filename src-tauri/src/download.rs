@@ -6,6 +6,7 @@ use tokio::process::Command;
 #[derive(serde::Serialize, Clone)]
 #[serde(tag = "type", content = "data")]
 pub enum DownloadEvent {
+    Starting,
     Progress {
         percent: f32,
         speed: String,
@@ -124,6 +125,9 @@ pub async fn download(
         let state = app.state::<crate::state::AppState>();
         crate::cookies::cookie_file_args(&state)
     };
+
+    // Emit Starting immediately — covers the title-fetch gap before progress begins
+    let _ = on_event.send(DownloadEvent::Starting);
 
     let (output_template, output_path) = if is_playlist {
         let template = format!("{}/%(playlist_index)02d - %(title)s.%(ext)s", save_dir);
