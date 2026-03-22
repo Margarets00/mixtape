@@ -1,5 +1,6 @@
 use regex::Regex;
 use std::collections::HashMap;
+use std::process::Stdio;
 use tauri::Manager;
 use tokio::io::AsyncBufReadExt;
 use tokio::process::Command;
@@ -17,6 +18,25 @@ pub struct SearchResult {
 pub struct SearchResponse {
     pub results: Vec<SearchResult>,
     pub used_fallback: bool,
+}
+
+#[derive(serde::Serialize, Clone)]
+#[serde(tag = "type", content = "data")]
+pub enum SearchEvent {
+    Result {
+        id: String,
+        title: String,
+        thumbnail_url: String,
+        duration: String,
+        channel: String,
+    },
+    Done {
+        total: usize,
+        used_fallback: bool,
+    },
+    Error {
+        message: String,
+    },
 }
 
 /// Parse ISO 8601 duration string (e.g. PT4M13S) into display format (e.g. "4:13")
@@ -228,10 +248,15 @@ pub async fn search_ytdlp(query: String) -> Result<Vec<SearchResult>, String> {
 }
 
 /// Unified search entry point.
-/// - If query is a URL: use yt-dlp to fetch single-video metadata.
-/// - If query is a keyword: try YouTube API first (if api_key provided), fall back to yt-dlp.
+/// - If query is a URL: use yt-dlp to fetch single-video metadata, emit via channel.
+/// - If query is a keyword: try YouTube API first (if api_key provided), fall back to yt-dlp streaming.
 #[tauri::command]
-pub async fn search(app: tauri::AppHandle, query: String, api_key: Option<String>) -> Result<SearchResponse, String> {
+pub async fn search(
+    app: tauri::AppHandle,
+    query: String,
+    api_key: Option<String>,
+    on_result: tauri::ipc::Channel<SearchEvent>,
+) -> Result<(), String> {
     // Normalize bare youtube.com / youtu.be URLs (without https:// prefix)
     let normalized_query = if (query.starts_with("youtube.com") || query.starts_with("youtu.be"))
         && !query.starts_with("http")
@@ -271,29 +296,29 @@ pub async fn search(app: tauri::AppHandle, query: String, api_key: Option<String
         let line = stdout.trim();
 
         if line.is_empty() {
-            return Ok(SearchResponse {
-                results: vec![],
-                used_fallback: true,
-            });
+            let _ = on_result.send(SearchEvent::Done { total: 0, used_fallback: true });
+            return Ok(());
         }
 
         let parts: Vec<&str> = line.splitn(5, '\t').collect();
         if parts.len() < 5 {
-            return Err(format!("Unexpected yt-dlp output format for URL: {}", line));
+            let _ = on_result.send(SearchEvent::Error {
+                message: format!("Unexpected yt-dlp output format for URL: {}", line),
+            });
+            return Ok(());
         }
 
         let vid_id = parts[0].to_string();
         let thumbnail_url = format!("https://img.youtube.com/vi/{}/mqdefault.jpg", vid_id);
-        return Ok(SearchResponse {
-            results: vec![SearchResult {
-                id: vid_id,
-                title: parts[1].to_string(),
-                thumbnail_url,
-                duration: parts[3].to_string(),
-                channel: parts[4].to_string(),
-            }],
-            used_fallback: true,
+        let _ = on_result.send(SearchEvent::Result {
+            id: vid_id,
+            title: parts[1].to_string(),
+            thumbnail_url,
+            duration: parts[3].to_string(),
+            channel: parts[4].to_string(),
         });
+        let _ = on_result.send(SearchEvent::Done { total: 1, used_fallback: true });
+        return Ok(());
     }
 
     // Keyword search
@@ -303,10 +328,18 @@ pub async fn search(app: tauri::AppHandle, query: String, api_key: Option<String
         // Try YouTube API first
         match search_youtube_api(query.clone(), key).await {
             Ok(results) => {
-                return Ok(SearchResponse {
-                    results,
-                    used_fallback: false,
-                });
+                let total = results.len();
+                for r in results {
+                    let _ = on_result.send(SearchEvent::Result {
+                        id: r.id,
+                        title: r.title,
+                        thumbnail_url: r.thumbnail_url,
+                        duration: r.duration,
+                        channel: r.channel,
+                    });
+                }
+                let _ = on_result.send(SearchEvent::Done { total, used_fallback: false });
+                return Ok(());
             }
             Err(e) => {
                 eprintln!("YouTube API search failed (falling back to yt-dlp): {}", e);
@@ -314,12 +347,64 @@ pub async fn search(app: tauri::AppHandle, query: String, api_key: Option<String
         }
     }
 
-    // Fallback to yt-dlp
-    let results = search_ytdlp(query).await?;
-    Ok(SearchResponse {
-        results,
-        used_fallback: true,
-    })
+    // Fallback: stream yt-dlp results line-by-line
+    let ytdlp_path = crate::download::locate_sidecar("yt-dlp")?;
+    let search_arg = format!("ytsearch5:{}", query);
+
+    let mut child = Command::new(&ytdlp_path)
+        .args([
+            "--print",
+            "%(id)s\t%(title)s\t%(thumbnail)s\t%(duration_string)s\t%(channel)s",
+            "--flat-playlist",
+            "--no-warnings",
+            &search_arg,
+        ])
+        .stdout(Stdio::piped())
+        .stderr(Stdio::piped())
+        .spawn()
+        .map_err(|e| {
+            let msg = format!("Failed to spawn yt-dlp for search: {}", e);
+            let _ = on_result.send(SearchEvent::Error { message: msg.clone() });
+            msg
+        })?;
+
+    let stdout = child.stdout.take().unwrap();
+    let mut reader = tokio::io::BufReader::new(stdout).lines();
+    let mut count = 0usize;
+
+    while let Ok(Some(line)) = reader.next_line().await {
+        let parts: Vec<&str> = line.splitn(5, '\t').collect();
+        if parts.len() >= 2 {
+            let id = parts[0].to_string();
+            let thumbnail_url = if parts.get(2).map_or(true, |t| t.is_empty() || *t == "NA") {
+                format!("https://img.youtube.com/vi/{}/mqdefault.jpg", id)
+            } else {
+                parts[2].to_string()
+            };
+            let duration = parts.get(3).unwrap_or(&"?").to_string();
+            let channel = parts.get(4).unwrap_or(&"").to_string();
+
+            let _ = on_result.send(SearchEvent::Result {
+                id,
+                title: parts[1].to_string(),
+                thumbnail_url,
+                duration,
+                channel,
+            });
+            count += 1;
+        }
+    }
+
+    let status = child.wait().await.map_err(|e| format!("yt-dlp wait: {}", e))?;
+    if !status.success() && count == 0 {
+        let _ = on_result.send(SearchEvent::Error {
+            message: "yt-dlp search returned no results".to_string(),
+        });
+    } else {
+        let _ = on_result.send(SearchEvent::Done { total: count, used_fallback: true });
+    }
+
+    Ok(())
 }
 
 /// Returns true only for playlist URLs (e.g. youtube.com/playlist?list=PLxxx).
