@@ -119,6 +119,12 @@ pub async fn download(
     // For single videos we pre-fetch the title so we can clean noise words.
     let is_playlist = url.contains("list=") || url.contains("/playlist");
 
+    // Get cookie args from AppState before entering async branches
+    let cookie_args = {
+        let state = app.state::<crate::state::AppState>();
+        crate::cookies::cookie_browser_args(&state)
+    };
+
     let (output_template, output_path) = if is_playlist {
         let template = format!("{}/%(playlist_index)02d - %(title)s.%(ext)s", save_dir);
         let path = save_dir.clone(); // report the folder, not a single file
@@ -127,6 +133,7 @@ pub async fn download(
         // Step 1: Get raw title (no download)
         let title_output = Command::new(&ytdlp_path)
             .args(["--print", "title", &url])
+            .args(&cookie_args)
             .output()
             .await
             .map_err(|e| format!("Failed to get title: {}", e))?;
@@ -160,6 +167,7 @@ pub async fn download(
             &output_template,
             &url,
         ])
+        .args(&cookie_args)
         .stdout(Stdio::piped())
         .stderr(Stdio::piped())
         .spawn()

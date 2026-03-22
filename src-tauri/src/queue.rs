@@ -62,9 +62,16 @@ pub async fn queue_download(
     let ffmpeg_path = crate::download::locate_sidecar("ffmpeg")?;
     let ffmpeg_str = ffmpeg_path.to_string_lossy().to_string();
 
+    // Get cookie args from AppState before entering spawned task (avoids lifetime issues)
+    let cookie_args: Vec<String> = {
+        let state = app.state::<crate::state::AppState>();
+        crate::cookies::cookie_browser_args(&state)
+    };
+
     // Pre-fetch title for clean filename (outside the retry loop — happens once)
     let title_output = tokio::process::Command::new(&ytdlp_path)
         .args(["--print", "title", &video_url])
+        .args(&cookie_args)
         .output()
         .await
         .map_err(|e| format!("Failed to get title: {}", e))?;
@@ -83,7 +90,9 @@ pub async fn queue_download(
     // Move into spawned task — permit held for full download + retry duration
     let item_id_clone = item_id.clone();
     let app_clone = app.clone();
+    let cookie_args_clone = cookie_args.clone();
     tauri::async_runtime::spawn(async move {
+        let cookie_args = cookie_args_clone;
         let _permit = permit; // held until this block exits, releasing semaphore slot
         let mut attempt: u32 = 0;
 
@@ -130,6 +139,7 @@ pub async fn queue_download(
                     &output_template,
                     &video_url,
                 ])
+                .args(&cookie_args)
                 .args(&extra_args)
                 .stdout(std::process::Stdio::piped())
                 .stderr(std::process::Stdio::piped())

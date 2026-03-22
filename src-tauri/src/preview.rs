@@ -17,6 +17,11 @@ pub async fn preview_start(
     // Delete stale temp file if it exists
     let _ = std::fs::remove_file(&tmp_path);
 
+    let cookie_args = {
+        let state = app.state::<crate::state::AppState>();
+        crate::cookies::cookie_browser_args(&state)
+    };
+
     let mut child = tokio::process::Command::new(&ytdlp)
         .args([
             "--download-sections",
@@ -32,6 +37,7 @@ pub async fn preview_start(
             tmp_path.to_str().unwrap(),
             &video_url,
         ])
+        .args(&cookie_args)
         .stdout(std::process::Stdio::piped())
         .stderr(std::process::Stdio::piped())
         .spawn()

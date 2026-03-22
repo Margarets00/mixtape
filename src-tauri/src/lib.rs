@@ -1,3 +1,4 @@
+mod cookies;
 mod download;
 mod errors;
 mod preview;
@@ -17,7 +18,11 @@ pub fn run() {
         .plugin(tauri_plugin_store::Builder::default().build())
         .plugin(tauri_plugin_notification::init())
         .plugin(tauri_plugin_opener::init())
-        .setup(|_app| {
+        .setup(|app| {
+            let app_handle = app.handle().clone();
+            tauri::async_runtime::spawn(async move {
+                let _ = crate::cookies::detect_cookie_browser(app_handle).await;
+            });
             Ok(())
         })
         .manage(state::AppState::default())
@@ -31,6 +36,8 @@ pub fn run() {
             preview::preview_stop,
             queue::queue_download,
             queue::cancel_download,
+            cookies::detect_cookie_browser,
+            cookies::set_cookie_browser,
         ])
         .build(tauri::generate_context!())
         .expect("error while building tauri application")
