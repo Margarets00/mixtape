@@ -19,6 +19,7 @@
     "store:allow-get",
     "store:allow-save",
     "notification:default",
-    "opener:default"
+    "opener:default",
+    "updater:default"
   ]
 }

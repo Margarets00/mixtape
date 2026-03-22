@@ -38,6 +38,25 @@
     "externalBin": [
       "binaries/yt-dlp",
       "binaries/ffmpeg"
-    ]
+    ],
+    "createUpdaterArtifacts": true,
+    "macOS": {
+      "signingIdentity": "Developer ID Application: IDENTITY_PLACEHOLDER (TEAM_PLACEHOLDER)",
+      "hardenedRuntime": true,
+      "entitlements": "./Entitlements.plist",
+      "minimumSystemVersion": "10.15"
+    },
+    "windows": {
+      "signCommand": "signtool sign /tr http://timestamp.digicert.com /td sha256 /fd sha256 /sha1 %CERT_THUMBPRINT% %1",
+      "nsis": {}
+    }
+  },
+  "plugins": {
+    "updater": {
+      "pubkey": "UPDATER_PUBKEY_PLACEHOLDER",
+      "endpoints": [
+        "https://github.com/OWNER/REPO/releases/latest/download/latest.json"
+      ]
+    }
   }
 }
