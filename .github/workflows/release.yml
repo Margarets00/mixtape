@@ -37,7 +37,7 @@ jobs:
         with:
           tagName: v__VERSION__
           releaseName: "mixtape v__VERSION__"
-          releaseDraft: true
+          releaseDraft: false
           args: --target universal-apple-darwin
 
   build-windows:
@@ -67,7 +67,7 @@ jobs:
         with:
           tagName: v__VERSION__
           releaseName: "mixtape v__VERSION__"
-          releaseDraft: true
+          releaseDraft: false
 
   build-linux:
     runs-on: ubuntu-22.04
@@ -101,4 +101,4 @@ jobs:
         with:
           tagName: v__VERSION__
           releaseName: "mixtape v__VERSION__"
-          releaseDraft: true
+          releaseDraft: false
