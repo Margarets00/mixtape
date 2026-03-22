@@ -206,6 +206,7 @@ function App() {
             queue={queue}
             onPreview={setPreviewTrack}
             onNavigateSettings={() => setActiveTab('settings')}
+            onNavigateQueue={() => setActiveTab('queue')}
             downloadedIds={downloadedIds}
             searchState={searchState}
             onSearchStateChange={setSearchState}
