@@ -7,6 +7,7 @@ import { QueueTab } from './components/QueueTab';
 import { SettingsTab } from './components/SettingsTab';
 import { PlayerBar } from './components/PlayerBar';
 import { HistoryTab } from './components/HistoryTab';
+import { useAutoUpdate } from './hooks/useAutoUpdate';
 
 type Tab = 'search' | 'queue' | 'history' | 'settings';
 
@@ -82,6 +83,8 @@ function App() {
   const [queue, dispatch] = useReducer(queueReducer, []);
   const [previewTrack, setPreviewTrack] = useState<PreviewTrack | null>(null);
   const [downloadedIds, setDownloadedIds] = useState<Set<string>>(new Set());
+
+  const { updateAvailable, version, install, dismiss } = useAutoUpdate();
 
   const queueBadgeCount = queue.length;
 
@@ -176,6 +179,56 @@ function App() {
       </main>
 
       <PlayerBar track={previewTrack} onStop={() => setPreviewTrack(null)} />
+
+      {updateAvailable && (
+        <div
+          style={{
+            position: 'fixed',
+            bottom: '80px',
+            right: '20px',
+            background: 'var(--color-green)',
+            border: 'var(--border-style)',
+            boxShadow: '4px 4px 0px var(--color-pink-dark)',
+            padding: '12px 16px',
+            fontFamily: 'var(--font-body)',
+            fontSize: '13px',
+            zIndex: 1000,
+            maxWidth: '300px',
+          }}
+        >
+          <div style={{ marginBottom: '8px', color: 'var(--color-blue-dark)' }}>
+            Update available — v{version}
+          </div>
+          <div style={{ display: 'flex', gap: '8px' }}>
+            <button
+              onClick={() => install?.()}
+              style={{
+                fontFamily: 'var(--font-display)',
+                fontSize: '11px',
+                padding: '4px 12px',
+                background: 'var(--color-pink)',
+                border: 'var(--border-style)',
+                cursor: 'pointer',
+              }}
+            >
+              Update Now
+            </button>
+            <button
+              onClick={dismiss}
+              style={{
+                fontFamily: 'var(--font-display)',
+                fontSize: '11px',
+                padding: '4px 12px',
+                background: 'var(--color-blue)',
+                border: 'var(--border-style)',
+                cursor: 'pointer',
+              }}
+            >
+              Later
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
