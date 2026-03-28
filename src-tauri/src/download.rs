@@ -3,7 +3,7 @@ use tauri::Manager;
 use tokio::io::AsyncBufReadExt;
 use tokio::process::Command;
 
-#[derive(serde::Serialize, Clone)]
+#[derive(serde::Serialize, Clone, Debug)]
 #[serde(tag = "type", content = "data")]
 pub enum DownloadEvent {
     Starting,
@@ -33,6 +33,11 @@ pub enum DownloadEvent {
 /// In Tauri production bundles, they keep the triple suffix
 /// (e.g. `Contents/MacOS/yt-dlp-aarch64-apple-darwin`).
 pub fn locate_sidecar(name: &str) -> Result<std::path::PathBuf, String> {
+    // Test hook: YTDLP_PATH env var overrides normal sidecar lookup
+    if let Ok(p) = std::env::var("YTDLP_PATH") {
+        return Ok(std::path::PathBuf::from(p));
+    }
+
     let exe = std::env::current_exe().map_err(|e| format!("current_exe: {}", e))?;
     let dir = exe.parent().ok_or("no parent dir for executable")?;
 
@@ -248,4 +253,79 @@ pub async fn download(
     });
 
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_parse_progress_line() {
+        let evt = parse_yt_dlp_line("PROGRESS 42.5 1.2MiB/s 00:30");
+        assert!(evt.is_some(), "expected Some for valid PROGRESS line");
+        match evt.unwrap() {
+            DownloadEvent::Progress { percent, speed, eta } => {
+                assert!((percent - 42.5).abs() < 0.01, "percent should be ~42.5, got {}", percent);
+                assert_eq!(speed, "1.2MiB/s");
+                assert_eq!(eta, "00:30");
+            }
+            other => panic!("expected Progress, got {:?}", other),
+        }
+    }
+
+    #[test]
+    fn test_parse_error_keyword_video_unavailable() {
+        let evt = parse_yt_dlp_line("ERROR: Video unavailable");
+        assert!(evt.is_some(), "expected Some for ERROR line");
+        match evt.unwrap() {
+            DownloadEvent::Error { message } => {
+                assert!(
+                    message.contains("unavailable") || message.contains("removed"),
+                    "message should mention unavailable, got: {}", message
+                );
+            }
+            other => panic!("expected Error, got {:?}", other),
+        }
+    }
+
+    // -- locate_sidecar tests (per D-03, D-06, D-07) --
+
+    fn write_fake_binary(dir: &std::path::Path, name: &str) -> std::path::PathBuf {
+        #[cfg(unix)]
+        {
+            use std::os::unix::fs::PermissionsExt;
+            let path = dir.join(name);
+            std::fs::write(&path, "#!/bin/sh\nexit 0").unwrap();
+            std::fs::set_permissions(&path, std::fs::Permissions::from_mode(0o755)).unwrap();
+            path
+        }
+        #[cfg(windows)]
+        {
+            let path = dir.join(format!("{}.bat", name));
+            std::fs::write(&path, "@exit /b 0").unwrap();
+            path
+        }
+    }
+
+    #[test]
+    fn test_locate_sidecar_via_env_override() {
+        let dir = tempfile::tempdir().unwrap();
+        let fake_path = write_fake_binary(dir.path(), "yt-dlp-fake");
+
+        std::env::set_var("YTDLP_PATH", fake_path.to_str().unwrap());
+        let result = locate_sidecar("yt-dlp");
+        std::env::remove_var("YTDLP_PATH");
+
+        assert!(result.is_ok(), "locate_sidecar should succeed with YTDLP_PATH set");
+        assert_eq!(result.unwrap(), fake_path);
+    }
+
+    #[test]
+    fn test_locate_sidecar_missing_returns_err_in_ci() {
+        std::env::remove_var("YTDLP_PATH");
+        if std::env::var("CI").is_ok() {
+            let result = locate_sidecar("yt-dlp-nonexistent-test-binary-xyz");
+            assert!(result.is_err(), "locate_sidecar should fail for nonexistent binary in CI");
+        }
+    }
 }
