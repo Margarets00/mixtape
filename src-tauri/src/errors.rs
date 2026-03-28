@@ -28,3 +28,30 @@ pub fn parse_ytdlp_error(line: &str) -> Option<String> {
     }
     None
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_429_rate_limit() {
+        let result = parse_ytdlp_error("ERROR: HTTP Error 429: Too Many Requests");
+        assert!(result.is_some(), "should parse 429 error");
+        let msg = result.unwrap();
+        assert!(
+            msg.contains("rate limit") || msg.contains("Rate limit"),
+            "message should mention rate limit, got: {}", msg
+        );
+    }
+
+    #[test]
+    fn test_video_unavailable() {
+        let result = parse_ytdlp_error("ERROR: Video unavailable");
+        assert!(result.is_some(), "should parse Video unavailable");
+        let msg = result.unwrap();
+        assert!(
+            msg.contains("unavailable") || msg.contains("removed"),
+            "message should mention unavailable, got: {}", msg
+        );
+    }
+}
