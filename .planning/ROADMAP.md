@@ -179,8 +179,19 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4
 
 **v1 coverage: 35/35 requirements mapped (5 promoted from v2). No orphans.**
 
+### Phase 5: Test Infrastructure — 사이드카 부재/에러 경로 시뮬레이션, Rust 단위 테스트, CI 번들 검증 step. 클린 머신 없이도 크로스플랫폼 동작을 검증할 수 있는 테스트 워크플로우 구축.
+
+**Goal:** Rust unit tests for critical parse/sidecar functions pass locally and in CI; release workflow validates sidecar filenames before building, catching binary-naming errors before the 10+ minute Tauri build.
+**Requirements**: D-01, D-02, D-03, D-06, D-07, D-08, D-09, D-10, D-11, D-12, D-13, D-14, D-15
+**Depends on:** Phase 4
+**Plans:** 2 plans
+
+Plans:
+- [ ] 05-01-PLAN.md — Rust unit tests (tempfile dev-dep, YTDLP_PATH env var override in locate_sidecar, smoke tests for parse_yt_dlp_line + parse_ytdlp_error + locate_sidecar)
+- [ ] 05-02-PLAN.md — CI workflow updates (cargo test + sidecar filename verification steps in all 3 platform jobs of release.yml)
+
 ---
 
 *Roadmap created: 2026-03-21*
-*Last updated: 2026-03-22 — Phase 4 plans finalized*
-*Granularity: Coarse (4 phases, 11 plans total)*
+*Last updated: 2026-03-28 — Phase 5 plans finalized*
+*Granularity: Coarse (5 phases, 13 plans total)*
