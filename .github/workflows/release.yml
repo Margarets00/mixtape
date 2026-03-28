@@ -31,6 +31,17 @@ jobs:
       - name: Download sidecars (macOS universal)
         run: bash scripts/download-sidecars-ci.sh universal-apple-darwin
 
+      - name: Run Rust unit tests
+        run: cargo test --manifest-path src-tauri/Cargo.toml -- --test-threads=1
+
+      - name: Verify sidecar files exist
+        run: |
+          test -f src-tauri/binaries/yt-dlp-aarch64-apple-darwin   || { echo "MISSING: yt-dlp-aarch64-apple-darwin"; exit 1; }
+          test -f src-tauri/binaries/yt-dlp-x86_64-apple-darwin    || { echo "MISSING: yt-dlp-x86_64-apple-darwin"; exit 1; }
+          test -f src-tauri/binaries/ffmpeg-aarch64-apple-darwin    || { echo "MISSING: ffmpeg-aarch64-apple-darwin"; exit 1; }
+          test -f src-tauri/binaries/ffmpeg-x86_64-apple-darwin     || { echo "MISSING: ffmpeg-x86_64-apple-darwin"; exit 1; }
+          echo "Sidecar check passed."
+
       - uses: tauri-apps/tauri-action@v0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -60,6 +71,18 @@ jobs:
       - name: Download sidecars (Windows)
         run: bash scripts/download-sidecars.sh
         shell: bash
+
+      - name: Run Rust unit tests
+        run: cargo test --manifest-path src-tauri/Cargo.toml -- --test-threads=1
+
+      - name: Verify sidecar files exist
+        shell: pwsh
+        run: |
+          $missing = @()
+          if (-not (Test-Path "src-tauri/binaries/yt-dlp-x86_64-pc-windows-msvc.exe")) { $missing += "yt-dlp-x86_64-pc-windows-msvc.exe" }
+          if (-not (Test-Path "src-tauri/binaries/ffmpeg-x86_64-pc-windows-msvc.exe")) { $missing += "ffmpeg-x86_64-pc-windows-msvc.exe" }
+          if ($missing.Count -gt 0) { Write-Error "MISSING sidecars: $($missing -join ', ')"; exit 1 }
+          Write-Host "Sidecar check passed."
 
       - uses: tauri-apps/tauri-action@v0
         env:
@@ -94,6 +117,15 @@ jobs:
 
       - name: Download sidecars (Linux)
         run: bash scripts/download-sidecars.sh
+
+      - name: Run Rust unit tests
+        run: cargo test --manifest-path src-tauri/Cargo.toml -- --test-threads=1
+
+      - name: Verify sidecar files exist
+        run: |
+          test -f src-tauri/binaries/yt-dlp-x86_64-unknown-linux-gnu  || { echo "MISSING: yt-dlp-x86_64-unknown-linux-gnu"; exit 1; }
+          test -f src-tauri/binaries/ffmpeg-x86_64-unknown-linux-gnu   || { echo "MISSING: ffmpeg-x86_64-unknown-linux-gnu"; exit 1; }
+          echo "Sidecar check passed."
 
       - uses: tauri-apps/tauri-action@v0
         env:
