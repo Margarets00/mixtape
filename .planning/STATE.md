@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: unknown
-stopped_at: Completed 05-01-PLAN.md (Rust unit tests)
-last_updated: "2026-03-28T15:07:39.765Z"
+stopped_at: Completed 05-02-PLAN.md (CI cargo test + sidecar verification)
+last_updated: "2026-03-28T15:10:47.131Z"
 progress:
   total_phases: 6
-  completed_phases: 4
+  completed_phases: 5
   total_plans: 13
-  completed_plans: 12
+  completed_plans: 13
 ---
 
 # Project State
@@ -59,6 +59,7 @@ Plan: 2 of 2
 | Phase 04-distribution P01 | 2min | 2 tasks | 9 files |
 | Phase 04-distribution P02 | 30min | 2 tasks | 1 files |
 | Phase 05 P01 | 2min | 2 tasks | 3 files |
+| Phase 05 P02 | 70s | 1 tasks | 1 files |
 
 ## Accumulated Context
 
@@ -102,6 +103,8 @@ Recent decisions affecting current work:
 - [Phase 04-distribution]: Auto-updater disabled in release workflow: signing removed so latest.json cannot be generated; users update manually via GitHub Releases
 - [Phase 05]: YTDLP_PATH env var inserted as first check in locate_sidecar — zero cost in prod, enables RAII temp dir injection in tests (D-06)
 - [Phase 05]: Debug derive added to DownloadEvent to support panic! formatting in pattern match arms in unit tests
+- [Phase 05]: Windows CI sidecar check uses pwsh Test-Path — avoids bash test -f cross-platform issues on Windows runners
+- [Phase 05]: cargo test uses --test-threads=1 in CI to avoid env var race conditions
 
 ### Roadmap Evolution
 
@@ -136,6 +139,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-28T15:07:39.762Z
-Stopped at: Completed 05-01-PLAN.md (Rust unit tests)
+Last session: 2026-03-28T15:10:47.129Z
+Stopped at: Completed 05-02-PLAN.md (CI cargo test + sidecar verification)
 Resume file: None

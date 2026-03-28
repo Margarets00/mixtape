@@ -184,11 +184,11 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4
 **Goal:** Rust unit tests for critical parse/sidecar functions pass locally and in CI; release workflow validates sidecar filenames before building, catching binary-naming errors before the 10+ minute Tauri build.
 **Requirements**: D-01, D-02, D-03, D-06, D-07, D-08, D-09, D-10, D-11, D-12, D-13, D-14, D-15
 **Depends on:** Phase 4
-**Plans:** 1/2 plans executed
+**Plans:** 2/2 plans complete
 
 Plans:
 - [x] 05-01-PLAN.md — Rust unit tests (tempfile dev-dep, YTDLP_PATH env var override in locate_sidecar, smoke tests for parse_yt_dlp_line + parse_ytdlp_error + locate_sidecar)
-- [ ] 05-02-PLAN.md — CI workflow updates (cargo test + sidecar filename verification steps in all 3 platform jobs of release.yml)
+- [x] 05-02-PLAN.md — CI workflow updates (cargo test + sidecar filename verification steps in all 3 platform jobs of release.yml)
 
 ---
 
