@@ -369,6 +369,7 @@ pub async fn search(
         })?;
 
     let stdout = child.stdout.take().unwrap();
+    let stderr_handle = child.stderr.take().unwrap();
     let mut reader = tokio::io::BufReader::new(stdout).lines();
     let mut count = 0usize;
 
@@ -394,12 +395,25 @@ pub async fn search(
             count += 1;
         }
     }
+    drop(reader);
+
+    // Read stderr before waiting so we can surface yt-dlp error messages
+    use tokio::io::AsyncReadExt;
+    let mut stderr_buf = String::new();
+    let _ = tokio::io::BufReader::new(stderr_handle).read_to_string(&mut stderr_buf).await;
 
     let status = child.wait().await.map_err(|e| format!("yt-dlp wait: {}", e))?;
     if !status.success() && count == 0 {
-        let _ = on_result.send(SearchEvent::Error {
-            message: "yt-dlp search returned no results".to_string(),
-        });
+        let err_line = stderr_buf
+            .lines()
+            .find(|l| l.contains("ERROR:"))
+            .unwrap_or_else(|| stderr_buf.lines().next().unwrap_or(""));
+        let message = if err_line.is_empty() {
+            "yt-dlp search returned no results (unknown error)".to_string()
+        } else {
+            format!("yt-dlp: {}", err_line.trim())
+        };
+        let _ = on_result.send(SearchEvent::Error { message });
     } else {
         let _ = on_result.send(SearchEvent::Done { total: count, used_fallback: true });
     }

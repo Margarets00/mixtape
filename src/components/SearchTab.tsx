@@ -92,6 +92,7 @@ export function SearchTab({
   const { query, results, isSearching, hasSearched, usedFallback, isPlaylist, playlistTracks, selectedIds, playlistLoading } = searchState;
 
   const [toast, setToast] = useState<string | null>(null);
+  const [searchError, setSearchError] = useState<string | null>(null);
   const [isAddingUrl, setIsAddingUrl] = useState(false);
   const [searchElapsed, setSearchElapsed] = useState(0);
 
@@ -123,6 +124,7 @@ export function SearchTab({
     if (!query.trim()) return;
 
     const trimmed = query.trim();
+    setSearchError(null);
 
     // Playlist URL branch
     if (isPlaylistUrl(trimmed)) {
@@ -243,6 +245,7 @@ export function SearchTab({
     }
 
     // Normal search
+    setSearchError(null);
     onSearchStateChange({
       ...searchState,
       isPlaylist: false,
@@ -278,6 +281,8 @@ export function SearchTab({
             usedFallback: event.data?.used_fallback ?? false,
           });
         } else if (event.type === 'Error') {
+          const msg = event.data?.message ?? 'Search failed';
+          setSearchError(msg);
           onSearchStateChange({ ...searchStateRef.current, results: [], isSearching: false });
         }
       };
@@ -285,6 +290,8 @@ export function SearchTab({
       await invoke('search', { query: trimmed, apiKey: apiKey || null, onResult });
     } catch (err) {
       console.error('Search failed:', err);
+      const msg = err instanceof Error ? err.message : String(err);
+      setSearchError(msg || 'Search failed — check your connection or try again');
       onSearchStateChange({ ...searchStateRef.current, results: [], isSearching: false });
     }
   };
@@ -521,6 +528,28 @@ export function SearchTab({
       {/* Normal search view */}
       {!isPlaylist && (
         <div>
+          {/* Search error banner */}
+          {searchError && (
+            <div
+              style={{
+                background: 'rgba(255, 200, 200, 0.6)',
+                border: 'var(--border-style)',
+                padding: '8px 16px',
+                marginBottom: '16px',
+              }}
+            >
+              <span
+                style={{
+                  fontFamily: 'var(--font-body)',
+                  fontSize: '18px',
+                  color: 'var(--color-blue-dark)',
+                }}
+              >
+                ~ search error: {searchError} ~
+              </span>
+            </div>
+          )}
+
           {/* Fallback warning banner */}
           {hasSearched && usedFallback && results.length > 0 && (
             <div

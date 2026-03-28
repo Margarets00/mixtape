@@ -174,3 +174,7 @@ These stubs are intentional — plan 02-02 completes queue and preview features.
 ---
 *Phase: 02-core-ux*
 *Completed: 2026-03-22*
+
+## Self-Check: PASSED
+
+All created files confirmed to exist. Both task commits (5a9c164, a6f4b89) confirmed in git log.

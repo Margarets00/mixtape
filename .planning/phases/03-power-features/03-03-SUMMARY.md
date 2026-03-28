@@ -153,3 +153,12 @@ None - no external service configuration required. Notification permission is re
 ---
 *Phase: 03-power-features*
 *Completed: 2026-03-21*
+
+## Self-Check: PASSED
+
+- FOUND: src/components/HistoryTab.tsx
+- FOUND: src/App.tsx (with HistoryEntry, downloadedIds, 'history' tab)
+- FOUND: src-tauri/src/queue.rs (with MetadataOverride)
+- FOUND: commit 4c46747 (Task 1)
+- FOUND: commit 8814572 (Task 2)
+- FOUND: commit ff5e5bc (Task 3)
