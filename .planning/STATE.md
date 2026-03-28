@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: unknown
-stopped_at: Completed 04-distribution-04-02-PLAN.md
-last_updated: "2026-03-22T07:10:55.855Z"
+stopped_at: Completed 05-01-PLAN.md (Rust unit tests)
+last_updated: "2026-03-28T15:07:39.765Z"
 progress:
-  total_phases: 4
+  total_phases: 6
   completed_phases: 4
-  total_plans: 11
-  completed_plans: 11
+  total_plans: 13
+  completed_plans: 12
 ---
 
 # Project State
@@ -19,12 +19,12 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-21)
 
 **Core value:** 유튜브 음악을 검색 → 미리듣기 → 골라담기 → 한 방에 MP3 저장 — 이 흐름이 끊기지 않아야 한다.
-**Current focus:** Phase 04 — distribution
+**Current focus:** Phase 05 — test-infrastructure
 
 ## Current Position
 
-Phase: 04
-Plan: Not started
+Phase: 05 (test-infrastructure) — EXECUTING
+Plan: 2 of 2
 
 ## Performance Metrics
 
@@ -58,6 +58,7 @@ Plan: Not started
 | Phase 03-power-features P03 | 5min | 3 tasks | 12 files |
 | Phase 04-distribution P01 | 2min | 2 tasks | 9 files |
 | Phase 04-distribution P02 | 30min | 2 tasks | 1 files |
+| Phase 05 P01 | 2min | 2 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -99,6 +100,12 @@ Recent decisions affecting current work:
 - [Phase 04-distribution]: CI sidecar script delegates Windows/Linux to existing download-sidecars.sh via exec — only macOS universal case uses lipo
 - [Phase 04-distribution]: Unsigned builds chosen: no Apple Developer ID signing/notarization, no Windows EV cert — avoids certificate costs for initial release
 - [Phase 04-distribution]: Auto-updater disabled in release workflow: signing removed so latest.json cannot be generated; users update manually via GitHub Releases
+- [Phase 05]: YTDLP_PATH env var inserted as first check in locate_sidecar — zero cost in prod, enables RAII temp dir injection in tests (D-06)
+- [Phase 05]: Debug derive added to DownloadEvent to support panic! formatting in pattern match arms in unit tests
+
+### Roadmap Evolution
+
+- Phase 5 added: Test Infrastructure — 사이드카 부재/에러 경로 시뮬레이션, Rust 단위 테스트, CI 번들 검증 step. 클린 머신 없이도 크로스플랫폼 동작을 검증할 수 있는 테스트 워크플로우 구축.
 
 ### Pending Todos
 
@@ -129,6 +136,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-23T16:10:00Z
-Stopped at: Completed quick task 260323-1el (HistoryTab re-queue button)
+Last session: 2026-03-28T15:07:39.762Z
+Stopped at: Completed 05-01-PLAN.md (Rust unit tests)
 Resume file: None
