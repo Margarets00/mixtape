@@ -65,6 +65,7 @@ function stripRadioParams(url: string): string {
     const parsed = new URL(url);
     parsed.searchParams.delete('start_radio');
     parsed.searchParams.delete('list');
+    parsed.searchParams.delete('si');  // YouTube share tracking ID — not needed for lookup
     // list=PL... (일반 플레이리스트)는 지우면 안 되지만,
     // 이 함수는 isYoutubeUrl() && !isPlaylistUrl() 분기에서만 호출되므로 안전.
     return parsed.toString();
@@ -237,7 +238,8 @@ export function SearchTab({
         onNavigateQueue?.();
       } catch (err) {
         console.error('URL fetch failed:', err);
-        showToast('~ 영상 정보를 가져오는 데 실패했어요 ~');
+        const msg = err instanceof Error ? err.message : String(err);
+        showToast(msg ? `~ ${msg} ~` : '~ 영상 정보를 가져오는 데 실패했어요 ~');
       } finally {
         setIsAddingUrl(false);
       }

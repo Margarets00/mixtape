@@ -296,7 +296,19 @@ pub async fn search(
         let line = stdout.trim();
 
         if line.is_empty() {
-            let _ = on_result.send(SearchEvent::Done { total: 0, used_fallback: true });
+            // Surface the real yt-dlp error from stderr instead of failing silently
+            let stderr = String::from_utf8_lossy(&output.stderr);
+            let err_line = stderr
+                .lines()
+                .find(|l| l.contains("ERROR:"))
+                .unwrap_or_else(|| stderr.lines().next().unwrap_or(""));
+            if !err_line.is_empty() {
+                let _ = on_result.send(SearchEvent::Error {
+                    message: format!("yt-dlp: {}", err_line.trim()),
+                });
+            } else {
+                let _ = on_result.send(SearchEvent::Done { total: 0, used_fallback: true });
+            }
             return Ok(());
         }
 
