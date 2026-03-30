@@ -19,12 +19,8 @@ pub fn run() {
         .plugin(tauri_plugin_notification::init())
         .plugin(tauri_plugin_opener::init())
         .setup(|app| {
-            let app_handle = app.handle().clone();
-            tauri::async_runtime::spawn(async move {
-                if crate::cookies::detect_cookie_browser(app_handle.clone()).await.is_ok() {
-                    let _ = crate::cookies::extract_cookies_to_tempfile(app_handle).await;
-                }
-            });
+            // 쿠키 자동감지 없음 — 사용자가 Settings에서 명시적으로 선택한 브라우저만 사용.
+            // 프론트엔드(App.tsx)가 저장된 browser를 복원한 뒤 extract_saved_cookies 커맨드를 호출.
             Ok(())
         })
         .manage(state::AppState::default())
@@ -40,6 +36,7 @@ pub fn run() {
             queue::cancel_download,
             cookies::detect_cookie_browser,
             cookies::set_cookie_browser,
+            cookies::extract_saved_cookies,
         ])
         .build(tauri::generate_context!())
         .expect("error while building tauri application")

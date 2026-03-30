@@ -138,17 +138,18 @@ function App() {
     })();
   }, []);
 
-  // 저장된 쿠키 브라우저 복원 (재시작 시 AppState 동기화)
+  // 저장된 쿠키 브라우저 복원 (재시작 시 AppState 동기화 + 쿠키 추출)
+  // 사용자가 명시적으로 설정한 브라우저만 사용 — 자동감지 없음.
   useEffect(() => {
     (async () => {
       const { load } = await import("@tauri-apps/plugin-store");
       const { invoke } = await import("@tauri-apps/api/core");
       const store = await load("app-settings.json", { defaults: {} });
       const savedBrowser = await store.get<string | null>("cookie_browser");
-      // store에 저장된 값이 있으면 AppState에 세팅 (lib.rs setup의 자동 감지 이후 덮어쓸 수 있음)
-      // savedBrowser가 null이면 자동 감지 결과를 그대로 유지 (set_cookie_browser 호출 안 함)
-      if (savedBrowser !== null && savedBrowser !== undefined) {
+      if (savedBrowser) {
         await invoke("set_cookie_browser", { browser: savedBrowser });
+        // 쿠키 추출 — 저장된 브라우저 있을 때만 실행 (keychain 접근)
+        await invoke("extract_saved_cookies").catch(() => {/* 실패 무시 */});
       }
     })();
   }, []);

@@ -45,8 +45,14 @@ pub async fn set_cookie_browser(
     Ok(())
 }
 
-/// 앱 시작 시 1회 호출: 브라우저 쿠키를 temp 파일로 내보내고 경로를 AppState에 저장.
+/// 저장된 브라우저 쿠키를 temp 파일로 내보내고 경로를 AppState에 저장.
+/// 프론트엔드가 앱 시작 시 저장된 브라우저가 있을 때만 호출.
 /// 실패해도 에러를 무시하고 계속 동작 (쿠키 없이 진행).
+#[tauri::command]
+pub async fn extract_saved_cookies(app: tauri::AppHandle) -> Result<(), String> {
+    extract_cookies_to_tempfile(app).await
+}
+
 pub async fn extract_cookies_to_tempfile(app: tauri::AppHandle) -> Result<(), String> {
     let state = app.state::<crate::state::AppState>();
     let browser_opt = state.cookie_browser.lock().ok().and_then(|g| g.clone());

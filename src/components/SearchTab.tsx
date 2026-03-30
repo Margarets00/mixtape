@@ -56,7 +56,10 @@ function isYoutubeUrl(input: string): boolean {
     input.startsWith('youtube.com/') ||
     input.startsWith('https://youtu.be/') ||
     input.startsWith('http://youtu.be/') ||
-    input.startsWith('youtu.be/')
+    input.startsWith('youtu.be/') ||
+    input.startsWith('https://music.youtube.com/') ||
+    input.startsWith('http://music.youtube.com/') ||
+    input.startsWith('music.youtube.com/')
   );
 }
 
