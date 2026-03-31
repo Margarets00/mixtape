@@ -8,6 +8,7 @@ import { SettingsTab } from "./components/SettingsTab";
 import { PlayerBar } from "./components/PlayerBar";
 import { HistoryTab } from "./components/HistoryTab";
 import { SetupScreen } from "./components/SetupScreen";
+import { HelpModal } from "./components/HelpModal";
 import { useAutoUpdate } from "./hooks/useAutoUpdate";
 import type { SearchResult } from "./components/SearchResultRow";
 import type { PlaylistTrack } from "./components/PlaylistTrackRow";
@@ -133,7 +134,8 @@ function App() {
   const [downloadedIds, setDownloadedIds] = useState<Set<string>>(new Set());
   const [searchState, setSearchState] =
     useState<SearchState>(INITIAL_SEARCH_STATE);
-  const [depsReady, setDepsReady] = useState<boolean | null>(null); // null = checking
+  const [depsReady, setDepsReady] = useState(true); // optimistic — flips false only if check_deps reports missing
+  const [showHelp, setShowHelp] = useState(false);
   const [initialDeps, setInitialDeps] = useState<DepsResult | null>(null);
 
   const { updateAvailable, version, install, dismiss } = useAutoUpdate();
@@ -193,9 +195,7 @@ function App() {
     }
   };
 
-  if (depsReady === null) return null; // still checking
-
-  if (depsReady === false && initialDeps) {
+  if (!depsReady && initialDeps) {
     return (
       <SetupScreen
         deps={initialDeps}
@@ -218,7 +218,23 @@ function App() {
         paddingBottom: "72px",
       }}
     >
-      <header style={{ textAlign: "center", marginBottom: "32px" }}>
+      <header style={{ textAlign: "center", marginBottom: "32px", position: "relative" }}>
+        <button
+          onClick={() => setShowHelp(true)}
+          style={{
+            position: "absolute",
+            top: 0,
+            right: 0,
+            fontFamily: "var(--font-display)",
+            fontSize: "10px",
+            padding: "4px 10px",
+            background: "var(--color-blue)",
+            border: "var(--border-style)",
+            boxShadow: "3px 3px 0px var(--color-pink-dark)",
+          }}
+        >
+          ?
+        </button>
         <h1
           style={{
             fontFamily: "var(--font-display)",
@@ -294,6 +310,8 @@ function App() {
       </main>
 
       <PlayerBar track={previewTrack} onStop={() => setPreviewTrack(null)} />
+
+      {showHelp && <HelpModal onClose={() => setShowHelp(false)} />}
 
       {updateAvailable && (
         <div
