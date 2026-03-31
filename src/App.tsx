@@ -7,6 +7,7 @@ import { QueueTab } from "./components/QueueTab";
 import { SettingsTab } from "./components/SettingsTab";
 import { PlayerBar } from "./components/PlayerBar";
 import { HistoryTab } from "./components/HistoryTab";
+import { SetupScreen } from "./components/SetupScreen";
 import { useAutoUpdate } from "./hooks/useAutoUpdate";
 import type { SearchResult } from "./components/SearchResultRow";
 import type { PlaylistTrack } from "./components/PlaylistTrackRow";
@@ -114,6 +115,17 @@ export interface PreviewTrack {
   audioUrl: string;
 }
 
+interface DepStatus {
+  found: boolean;
+  path: string | null;
+  version: string | null;
+}
+
+interface DepsResult {
+  ytdlp: DepStatus;
+  ffmpeg: DepStatus;
+}
+
 function App() {
   const [activeTab, setActiveTab] = useState<Tab>("search");
   const [queue, dispatch] = useReducer(queueReducer, []);
@@ -121,10 +133,28 @@ function App() {
   const [downloadedIds, setDownloadedIds] = useState<Set<string>>(new Set());
   const [searchState, setSearchState] =
     useState<SearchState>(INITIAL_SEARCH_STATE);
+  const [depsReady, setDepsReady] = useState<boolean | null>(null); // null = checking
+  const [initialDeps, setInitialDeps] = useState<DepsResult | null>(null);
 
   const { updateAvailable, version, install, dismiss } = useAutoUpdate();
 
   const queueBadgeCount = queue.length;
+
+  // Check deps on mount — gate main UI until yt-dlp + ffmpeg are found
+  useEffect(() => {
+    (async () => {
+      const { invoke } = await import("@tauri-apps/api/core");
+      try {
+        const result = await invoke<DepsResult>("check_deps");
+        setInitialDeps(result);
+        setDepsReady(result.ytdlp.found && result.ffmpeg.found);
+      } catch {
+        // If check_deps command doesn't exist (full bundled build without this command),
+        // assume deps are ready and proceed normally.
+        setDepsReady(true);
+      }
+    })();
+  }, []);
 
   // Load history on mount to populate downloadedIds for DOWNLOADED badge
   useEffect(() => {
@@ -162,6 +192,17 @@ function App() {
       setDownloadedIds(new Set(entries.map((e) => e.videoId)));
     }
   };
+
+  if (depsReady === null) return null; // still checking
+
+  if (depsReady === false && initialDeps) {
+    return (
+      <SetupScreen
+        deps={initialDeps}
+        onReady={() => setDepsReady(true)}
+      />
+    );
+  }
 
   return (
     <div

@@ -28,9 +28,50 @@ A personal YouTube music downloader with a Y2K retro aesthetic. Built for privat
 - [yt-dlp](https://github.com/yt-dlp/yt-dlp) — video/audio extraction
 - [ffmpeg](https://ffmpeg.org) — audio conversion
 
+## Install
+
+### macOS
+
+```bash
+# Homebrew (recommended)
+brew tap Margarets00/mixtape
+brew install --cask mixtape
+
+# or curl
+curl -fsSL https://raw.githubusercontent.com/Margarets00/mixtape/main/install.sh | sh
+```
+
+### Windows
+
+```powershell
+# Scoop
+scoop bucket add mixtape https://github.com/Margarets00/scoop-mixtape
+scoop install mixtape
+
+# or PowerShell
+irm https://raw.githubusercontent.com/Margarets00/mixtape/main/install.ps1 | iex
+```
+
+### Linux
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/Margarets00/mixtape/main/install.sh | sh
+```
+
+> Homebrew/Scoop variants are **no-preinstall** builds — yt-dlp and ffmpeg must be installed separately (brew/scoop handle this automatically as dependencies). The app will guide you if anything is missing.
+
 ## Download
 
 Pre-built binaries are available on the [Releases](../../releases) page.
+
+Two variants are provided per platform:
+
+| Variant | File suffix | yt-dlp / ffmpeg |
+|---------|-------------|-----------------|
+| **Full** | *(none)* | Bundled — install and run immediately |
+| **No-Preinstall** | `-np` | Not bundled — you must install yt-dlp and ffmpeg separately |
+
+### Full (recommended)
 
 | Platform | Arch |
 |----------|------|
@@ -38,13 +79,43 @@ Pre-built binaries are available on the [Releases](../../releases) page.
 | Windows | x86-64 |
 | Linux | x86-64 |
 
+Download the installer for your platform and launch. No extra setup required.
+
+### No-Preinstall
+
+For users who already have yt-dlp and ffmpeg installed (e.g. via Homebrew, pip, winget).
+The app detects them automatically on launch; if not found, a setup screen lets you point to the binaries manually.
+
+Install dependencies first:
+
+```bash
+# macOS
+brew install yt-dlp ffmpeg
+
+# Windows
+winget install yt-dlp
+winget install ffmpeg
+
+# Linux / pip
+pip install yt-dlp
+sudo apt install ffmpeg   # or equivalent
+```
+
+Then download the `-np` installer from the Releases page.
+
 ## Build From Source
 
 ```bash
 # Prerequisites: Node.js, Rust, Cargo
+
+# Full build (bundles yt-dlp + ffmpeg sidecars)
 npm install
 bash scripts/download-sidecars.sh   # downloads yt-dlp + ffmpeg binaries
 npm run tauri build
+
+# No-preinstall build (no sidecars — users provide their own yt-dlp/ffmpeg)
+npm install
+npm run tauri build -- --config src-tauri/tauri.nopreinstall.conf.json
 ```
 
 ## Legal Notice & Copyright Disclaimer

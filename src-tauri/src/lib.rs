@@ -1,4 +1,5 @@
 mod cookies;
+mod deps;
 mod download;
 mod errors;
 mod preview;
@@ -36,6 +37,8 @@ pub fn run() {
             cookies::detect_cookie_browser,
             cookies::set_cookie_browser,
             cookies::extract_saved_cookies,
+            deps::check_deps,
+            deps::set_dep_path,
         ])
         .build(tauri::generate_context!())
         .expect("error while building tauri application")

@@ -3,6 +3,17 @@ import { open } from '@tauri-apps/plugin-dialog';
 import { load } from '@tauri-apps/plugin-store';
 import { invoke } from '@tauri-apps/api/core';
 
+interface DepStatus {
+  found: boolean;
+  path: string | null;
+  version: string | null;
+}
+
+interface DepsResult {
+  ytdlp: DepStatus;
+  ffmpeg: DepStatus;
+}
+
 function previewFilename(pattern: string): string {
   if (!pattern.trim()) return 'Bohemian Rhapsody.mp3';
   return (
@@ -24,6 +35,8 @@ export function SettingsTab() {
   const [embedThumbnail, setEmbedThumbnail] = useState(true);
   const [cookieBrowser, setCookieBrowser] = useState<string | null>(null);
   const [cookieStatus, setCookieStatus] = useState<'unknown' | 'ok' | 'none'>('unknown');
+  const [deps, setDeps] = useState<DepsResult | null>(null);
+  const [pickingDep, setPickingDep] = useState<'ytdlp' | 'ffmpeg' | null>(null);
 
   useEffect(() => {
     (async () => {
@@ -43,8 +56,29 @@ export function SettingsTab() {
       } else {
         setCookieStatus('none');
       }
+      // Load dep status
+      try {
+        const result = await invoke<DepsResult>('check_deps');
+        setDeps(result);
+      } catch {
+        // command not available in full bundled build — ignore
+      }
     })();
   }, []);
+
+  const handlePickDepPath = async (key: 'ytdlp' | 'ffmpeg') => {
+    setPickingDep(key);
+    try {
+      const selected = await open({ multiple: false, directory: false });
+      if (selected && typeof selected === 'string') {
+        await invoke('set_dep_path', { key, path: selected });
+        const result = await invoke<DepsResult>('check_deps');
+        setDeps(result);
+      }
+    } finally {
+      setPickingDep(null);
+    }
+  };
 
   const handleSaveApiKey = async () => {
     const store = await load('app-settings.json', { defaults: {} });
@@ -313,6 +347,56 @@ export function SettingsTab() {
           ~ 해당 브라우저로 YouTube에 로그인된 상태여야 합니다 ~
         </div>
       </div>
+
+      {/* Dependencies section */}
+      {deps && (
+        <div style={{ marginBottom: '32px' }}>
+          <div style={{ fontFamily: 'var(--font-display)', fontSize: '10px', marginBottom: '12px', color: 'var(--color-black)' }}>
+            DEPENDENCIES
+          </div>
+          {(['ytdlp', 'ffmpeg'] as const).map((key) => {
+            const dep = deps[key];
+            return (
+              <div
+                key={key}
+                style={{
+                  border: 'var(--border-style)',
+                  padding: '12px',
+                  marginBottom: '8px',
+                  background: dep.found ? 'rgba(119, 221, 119, 0.1)' : 'rgba(255, 105, 180, 0.1)',
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
+                  <span style={{ fontFamily: 'var(--font-display)', fontSize: '10px', color: 'var(--color-black)' }}>
+                    {key === 'ytdlp' ? 'YT-DLP' : 'FFMPEG'}
+                  </span>
+                  <span style={{ fontFamily: 'var(--font-body)', fontSize: '13px', color: dep.found ? 'var(--color-green-dark)' : 'var(--color-pink-dark)' }}>
+                    {dep.found ? '✓' : '✗ not found'}
+                  </span>
+                </div>
+                {dep.version && (
+                  <div style={{ fontFamily: 'var(--font-body)', fontSize: '12px', color: 'var(--color-blue-dark)', marginBottom: '4px' }}>
+                    {dep.version}
+                  </div>
+                )}
+                {dep.path && (
+                  <div style={{ fontFamily: 'monospace', fontSize: '11px', color: 'var(--color-black)', opacity: 0.55, marginBottom: '8px', wordBreak: 'break-all' }}>
+                    {dep.path}
+                  </div>
+                )}
+                <button
+                  type="button"
+                  onClick={() => handlePickDepPath(key)}
+                  disabled={pickingDep !== null}
+                  style={{ fontFamily: 'var(--font-display)', fontSize: '10px', padding: '4px 10px' }}
+                >
+                  {pickingDep === key ? 'PICKING...' : 'CHANGE PATH'}
+                </button>
+              </div>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }
