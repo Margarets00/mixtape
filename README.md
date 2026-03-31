@@ -8,11 +8,11 @@ A personal YouTube music downloader with a Y2K retro aesthetic. Built for privat
 
 | Search | Queue |
 |--------|-------|
-| ![Search](docs/screenshots/01-search.png) | ![Queue](docs/screenshots/02-queue.png) |
+| ![Search](docs/screenshots/search.png) | ![Queue](docs/screenshots/queue.png) |
 
 | History | Settings |
 |---------|----------|
-| ![History](docs/screenshots/03-history.png) | ![Settings](docs/screenshots/04-settings.png) |
+| ![History](docs/screenshots/history.png) | ![Settings](docs/screenshots/settings.png) |
 
 ## Features
 
