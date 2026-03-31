@@ -178,7 +178,7 @@ export function HelpModal({ onClose }: Props) {
             >
               <div style={{ fontSize: '20px', flexShrink: 0, lineHeight: 1.4 }}>{step.icon}</div>
               <div>
-                <div style={{ fontFamily: 'var(--font-display)', fontSize: '11px', color: 'var(--color-black)', marginBottom: '6px', lineHeight: 1.6 }}>
+                <div style={{ fontFamily: 'var(--font-body)', fontSize: '20px', color: 'var(--color-black)', marginBottom: '4px', lineHeight: 1.4, fontWeight: 'bold' }}>
                   {String(i + 1).padStart(2, '0')}. {step.title}
                 </div>
                 <div style={{ fontFamily: 'var(--font-body)', fontSize: '16px', color: 'var(--color-black)', lineHeight: 1.4 }}>
