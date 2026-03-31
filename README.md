@@ -26,7 +26,10 @@ A personal YouTube music downloader with a Y2K retro aesthetic. Built for privat
 - [Tauri](https://tauri.app) — native macOS/Windows/Linux shell
 - React + TypeScript — frontend UI
 - [yt-dlp](https://github.com/yt-dlp/yt-dlp) — video/audio extraction
-- [ffmpeg](https://ffmpeg.org) — audio conversion
+- [ffmpeg](https://ffmpeg.org) — MP3 conversion (yt-dlp extracts the stream; ffmpeg handles the audio encoding)
+
+> yt-dlp and ffmpeg are always bundled at their latest versions. This is intentional — yt-dlp needs frequent updates to keep up with YouTube changes, and we want to make sure things keep working without any action needed on your end.
+> / yt-dlp와 ffmpeg는 항상 최신 버전으로 번들됩니다. YouTube의 잦은 변경에 계속 대응하기 위한 의도적인 선택으로, 별도 조치 없이도 정상 동작을 유지할 수 있습니다.
 
 ## Install
 
