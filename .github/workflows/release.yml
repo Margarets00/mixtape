@@ -52,6 +52,7 @@ jobs:
           args: --target universal-apple-darwin
 
   build-macos-np:
+    needs: [build-macos]
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v4
@@ -126,6 +127,7 @@ jobs:
           releaseDraft: false
 
   build-windows-np:
+    needs: [build-macos]
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
@@ -204,6 +206,7 @@ jobs:
           releaseDraft: false
 
   build-linux-np:
+    needs: [build-macos]
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v4
