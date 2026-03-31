@@ -26,51 +26,101 @@ pub enum DownloadEvent {
     },
 }
 
-/// Locate a sidecar binary adjacent to the current executable.
-///
-/// In Tauri dev builds, sidecars are placed in `target/debug/` WITHOUT the
-/// target-triple suffix (e.g. `target/debug/yt-dlp`).
-/// In Tauri production bundles, they keep the triple suffix
-/// (e.g. `Contents/MacOS/yt-dlp-aarch64-apple-darwin`).
+/// Locate a binary by checking in order:
+///   1. Env var override (YTDLP_PATH / FFMPEG_PATH) — test hook
+///   2. User-saved custom path (app-settings.json via AppState)
+///   3. Bundled sidecar next to executable (full version)
+///   4. System PATH (no-preinstall version — e.g. brew install yt-dlp)
 pub fn locate_sidecar(name: &str) -> Result<std::path::PathBuf, String> {
-    // Test hook: YTDLP_PATH env var overrides normal sidecar lookup
-    if let Ok(p) = std::env::var("YTDLP_PATH") {
-        return Ok(std::path::PathBuf::from(p));
-    }
-
-    let exe = std::env::current_exe().map_err(|e| format!("current_exe: {}", e))?;
-    let dir = exe.parent().ok_or("no parent dir for executable")?;
-
-    // On Windows binaries need .exe extension
-    let ext = if cfg!(target_os = "windows") { ".exe" } else { "" };
-
-    // Dev mode: no triple suffix
-    let simple = dir.join(format!("{}{}", name, ext));
-    if simple.exists() {
-        return Ok(simple);
-    }
-
-    // Production mode: with compile-time target triple
-    let triple: &str = if cfg!(all(target_arch = "aarch64", target_os = "macos")) {
-        "aarch64-apple-darwin"
-    } else if cfg!(all(target_arch = "x86_64", target_os = "macos")) {
-        "x86_64-apple-darwin"
-    } else if cfg!(all(target_arch = "x86_64", target_os = "windows")) {
-        "x86_64-pc-windows-msvc"
-    } else if cfg!(all(target_arch = "x86_64", target_os = "linux")) {
-        "x86_64-unknown-linux-gnu"
-    } else {
-        ""
-    };
-
-    if !triple.is_empty() {
-        let with_triple = dir.join(format!("{}-{}{}", name, triple, ext));
-        if with_triple.exists() {
-            return Ok(with_triple);
+    // 1. Env var override
+    let env_key = if name == "yt-dlp" { "YTDLP_PATH" } else { "FFMPEG_PATH" };
+    if let Ok(p) = std::env::var(env_key) {
+        let path = std::path::PathBuf::from(&p);
+        if path.exists() {
+            return Ok(path);
         }
     }
 
-    Err(format!("sidecar '{}' not found in {:?}", name, dir))
+    // 2. User-saved custom path (written by set_dep_path command)
+    let settings_key = if name == "yt-dlp" { "dep_path_ytdlp" } else { "dep_path_ffmpeg" };
+    if let Some(p) = read_dep_path_from_settings(settings_key) {
+        let path = std::path::PathBuf::from(&p);
+        if path.exists() {
+            return Ok(path);
+        }
+    }
+
+    // 3. Bundled sidecar next to executable
+    let ext = if cfg!(target_os = "windows") { ".exe" } else { "" };
+    if let Ok(exe) = std::env::current_exe() {
+        if let Some(dir) = exe.parent() {
+            // Dev mode: no triple suffix
+            let simple = dir.join(format!("{}{}", name, ext));
+            if simple.exists() {
+                return Ok(simple);
+            }
+            // Production mode: with target triple
+            let triple: &str = if cfg!(all(target_arch = "aarch64", target_os = "macos")) {
+                "aarch64-apple-darwin"
+            } else if cfg!(all(target_arch = "x86_64", target_os = "macos")) {
+                "x86_64-apple-darwin"
+            } else if cfg!(all(target_arch = "x86_64", target_os = "windows")) {
+                "x86_64-pc-windows-msvc"
+            } else if cfg!(all(target_arch = "x86_64", target_os = "linux")) {
+                "x86_64-unknown-linux-gnu"
+            } else {
+                ""
+            };
+            if !triple.is_empty() {
+                let with_triple = dir.join(format!("{}-{}{}", name, triple, ext));
+                if with_triple.exists() {
+                    return Ok(with_triple);
+                }
+            }
+        }
+    }
+
+    // 4. System PATH
+    let bin_name = format!("{}{}", name, ext);
+    if let Ok(found) = which_in_path(&bin_name) {
+        return Ok(found);
+    }
+
+    Err(format!(
+        "'{}' not found. Install it or set a custom path in Settings.",
+        name
+    ))
+}
+
+/// Read a dependency path saved by set_dep_path from the JSON settings file.
+/// Uses a blocking read since this is called at command-dispatch time (not on main thread).
+fn read_dep_path_from_settings(key: &str) -> Option<String> {
+    let config_dir = dirs_next::config_dir()?;
+    let path = config_dir.join("mixtape").join("app-settings.json");
+    let contents = std::fs::read_to_string(path).ok()?;
+    let json: serde_json::Value = serde_json::from_str(&contents).ok()?;
+    json.get(key)?.as_str().map(|s| s.to_string())
+}
+
+/// Locate a binary name on the system PATH.
+fn which_in_path(name: &str) -> Result<std::path::PathBuf, String> {
+    let path_var = std::env::var("PATH").unwrap_or_default();
+    let sep = if cfg!(target_os = "windows") { ';' } else { ':' };
+    for dir in path_var.split(sep) {
+        let candidate = std::path::Path::new(dir).join(name);
+        if candidate.exists() {
+            return Ok(candidate);
+        }
+    }
+    // Also check common macOS Homebrew paths not always in PATH when launched as .app
+    #[cfg(target_os = "macos")]
+    for prefix in &["/opt/homebrew/bin", "/usr/local/bin"] {
+        let candidate = std::path::Path::new(prefix).join(name);
+        if candidate.exists() {
+            return Ok(candidate);
+        }
+    }
+    Err(format!("'{}' not found in PATH", name))
 }
 
 /// Create a Command for a yt-dlp sidecar with UTF-8 forced on Windows.

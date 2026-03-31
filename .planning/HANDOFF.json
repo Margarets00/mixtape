@@ -1,0 +1,95 @@
+{
+  "version": "1.0",
+  "timestamp": "2026-03-31T07:09:19.171Z",
+  "phase": "adhoc",
+  "phase_name": "no-preinstall-variant",
+  "phase_dir": null,
+  "plan": null,
+  "task": null,
+  "total_tasks": 7,
+  "status": "paused",
+  "completed_tasks": [
+    {
+      "id": 1,
+      "name": "locate_sidecar 확장 (env var → custom path → sidecar → system PATH)",
+      "status": "done",
+      "commit": "uncommitted",
+      "file": "src-tauri/src/download.rs"
+    },
+    {
+      "id": 2,
+      "name": "deps.rs 생성 (check_deps, set_dep_path 커맨드)",
+      "status": "done",
+      "commit": "uncommitted",
+      "file": "src-tauri/src/deps.rs"
+    }
+  ],
+  "remaining_tasks": [
+    {
+      "id": 3,
+      "name": "Cargo.toml에 dirs-next 의존성 추가",
+      "status": "not_started",
+      "detail": "deps.rs가 dirs_next::config_dir() 사용함"
+    },
+    {
+      "id": 4,
+      "name": "lib.rs에 deps 모듈 등록 + check_deps/set_dep_path invoke_handler에 추가",
+      "status": "not_started"
+    },
+    {
+      "id": 5,
+      "name": "tauri.nopreinstall.conf.json 생성 (externalBin 없음)",
+      "status": "not_started",
+      "detail": "tauri.conf.json에서 externalBin 섹션만 제거한 버전"
+    },
+    {
+      "id": 6,
+      "name": "프론트엔드 셋업 화면 + Settings 경로 섹션",
+      "status": "not_started",
+      "detail": "앱 시작 시 check_deps 호출 → 없으면 셋업 화면. Settings에 yt-dlp/ffmpeg 경로 파일피커+버전표시"
+    },
+    {
+      "id": 7,
+      "name": "CI workflow no-preinstall jobs 추가",
+      "status": "not_started",
+      "detail": "release.yml에 build-macos-nopreinstall, build-windows-nopreinstall, build-linux-nopreinstall job 추가. 사이드카 다운로드 스텝 없음, tauri.nopreinstall.conf.json 사용"
+    },
+    {
+      "id": 8,
+      "name": "README 업데이트 — 두 버전 명시",
+      "status": "not_started",
+      "detail": "Full (사이드카 포함) vs No-Preinstall (yt-dlp/ffmpeg 별도 설치 필요) 설명"
+    }
+  ],
+  "blockers": [],
+  "human_actions_pending": [],
+  "decisions": [
+    {
+      "decision": "no-preinstall 버전은 앱이 직접 다운로드하지 않고 요구사항만 안내",
+      "rationale": "사용자가 명시적으로 결정. download_dep 커맨드 없음.",
+      "phase": "adhoc"
+    },
+    {
+      "decision": "locate_sidecar가 system PATH도 탐색 (macOS Homebrew 경로 포함)",
+      "rationale": "brew install yt-dlp 한 사람이 경로 없이도 동작하도록",
+      "phase": "adhoc"
+    },
+    {
+      "decision": "커스텀 경로는 app-settings.json에 dep_path_ytdlp / dep_path_ffmpeg 키로 저장",
+      "rationale": "Tauri store와 동일 파일 사용. set_dep_path가 직접 JSON 패치.",
+      "phase": "adhoc"
+    },
+    {
+      "decision": "빌드 variant는 tauri.nopreinstall.conf.json으로 분리 (externalBin만 제거)",
+      "rationale": "Rust 코드는 공유, conf만 다르게. CI에서 --config 플래그로 선택.",
+      "phase": "adhoc"
+    }
+  ],
+  "uncommitted_files": [
+    "src-tauri/src/download.rs",
+    "src-tauri/src/deps.rs",
+    "src-tauri/Cargo.lock"
+  ],
+  "next_action": "Cargo.toml에 dirs-next = '0.3' 추가 → cargo build로 컴파일 확인 → lib.rs 등록 → tauri.nopreinstall.conf.json → 프론트엔드",
+  "context_notes": "컨텍스트 78% 소진으로 pause. 이 세션에서 phase 5 실행완료(v0.1.9 릴리즈), 쿠키 이중프롬프트 수정, si 파라미터 제거, music.youtube.com URL 지원, 빌드 경량화(LTO/strip/rustls) 완료. 현재 no-preinstall 버전 구현 도중."
+}
