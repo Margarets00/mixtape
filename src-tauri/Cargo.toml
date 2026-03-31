@@ -1,6 +1,6 @@
 [package]
 name = "mixtape"
-version = "0.1.0"
+version = "0.2.1"
 description = "mixtape — personal YouTube music downloader"
 authors = ["Margarets00"]
 edition = "2021"
