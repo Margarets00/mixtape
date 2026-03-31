@@ -11,22 +11,22 @@ const STEPS = {
     {
       icon: '🔍',
       title: '검색 또는 URL 붙여넣기',
-      desc: '곡 이름이나 아티스트로 검색하거나, YouTube URL을 그대로 붙여넣으면 돼. 플레이리스트 URL도 OK!',
+      desc: '곡 이름이나 아티스트로 검색하시거나, YouTube URL을 그대로 붙여넣으시면 돼요. 플레이리스트 URL도 OK!',
     },
     {
       icon: '▶',
       title: '미리 듣기',
-      desc: '검색 결과에서 재생 버튼을 누르면 최대 1분 미리 들을 수 있어. 마음에 드는 곡만 골라담자.',
+      desc: '검색 결과에서 재생 버튼을 누르시면 최대 1분 미리 들으실 수 있어요. 마음에 드는 곡만 골라담아 보세요 ♪',
     },
     {
       icon: '🛒',
       title: '큐에 담기',
-      desc: '[+] 버튼으로 여러 곡을 장바구니처럼 담아두고, Queue 탭에서 한 방에 다운로드!',
+      desc: '[+] 버튼으로 여러 곡을 장바구니처럼 담아두시고, Queue 탭에서 한 번에 다운로드하세요!',
     },
     {
       icon: '💾',
       title: '저장 폴더 지정',
-      desc: 'Settings → SAVE TO 에서 저장 폴더를 먼저 정해두면 편해. 안 정하면 기본 폴더에 저장돼.',
+      desc: 'Settings → SAVE TO 에서 저장 폴더를 먼저 정해두시면 편리해요. 따로 설정하지 않으시면 기본 폴더에 저장됩니다.',
     },
   ],
   en: [
@@ -55,10 +55,10 @@ const STEPS = {
 
 const TIPS = {
   ko: [
-    '🐌  다운로드가 느릴 수 있어 — YouTube 서버 상태나 네트워크에 따라 달라져. 기다려줘!',
-    '🍪  Sign in 오류가 뜨면 Settings → COOKIE SOURCE 에서 로그인된 브라우저를 선택해봐.',
-    '🔑  검색 결과가 적거나 느리면 Settings에서 YouTube API 키를 등록하면 빨라져.',
-    '📋  파일명 패턴은 Settings → FILENAME PATTERN 에서 {artist} - {title} 형식으로 커스텀 가능.',
+    '🐌  다운로드 속도는 YouTube 서버 상태와 네트워크 환경에 따라 느릴 수 있어요. 조금만 기다려 주세요!',
+    '🍪  Sign in 오류가 뜨면 Settings → COOKIE SOURCE 에서 로그인된 브라우저를 선택해 보세요.',
+    '🔑  검색이 느리거나 결과가 적으면 Settings에서 YouTube API 키를 등록하시면 훨씬 빨라져요.',
+    '📋  파일명은 Settings → FILENAME PATTERN 에서 {artist} - {title} 형식으로 자유롭게 바꾸실 수 있어요.',
   ],
   en: [
     '🐌  Downloads can be slow — it depends on YouTube server load and your network. Hang tight!',
@@ -69,7 +69,7 @@ const TIPS = {
 };
 
 const COPYRIGHT = {
-  ko: '⚠️ 저작권 안내 — 이 앱은 개인 소장 목적으로만 사용해줘. 다운로드한 음원의 저작권은 원 저작자에게 있어. 재배포·상업적 이용은 절대 안 돼. 아티스트를 응원하는 마음으로 공식 채널도 함께 이용해줘 ♡',
+  ko: '⚠️ 저작권 안내 — 이 앱은 개인 소장 목적으로만 사용해 주세요. 다운로드한 음원의 저작권은 원 저작자에게 있습니다. 재배포·상업적 이용은 절대 안 돼요. 좋아하는 아티스트를 응원하는 마음으로 공식 채널도 함께 이용해 주세요 ♡',
   en: '⚠️ Copyright Notice — This app is for personal archival use only. Downloaded content remains the property of its original creators. Redistribution or commercial use is strictly prohibited. Please support artists through official channels too ♡',
 };
 
@@ -178,7 +178,7 @@ export function HelpModal({ onClose }: Props) {
             >
               <div style={{ fontSize: '20px', flexShrink: 0, lineHeight: 1.4 }}>{step.icon}</div>
               <div>
-                <div style={{ fontFamily: 'var(--font-display)', fontSize: '8px', color: 'var(--color-black)', marginBottom: '4px' }}>
+                <div style={{ fontFamily: 'var(--font-display)', fontSize: '11px', color: 'var(--color-black)', marginBottom: '6px', lineHeight: 1.6 }}>
                   {String(i + 1).padStart(2, '0')}. {step.title}
                 </div>
                 <div style={{ fontFamily: 'var(--font-body)', fontSize: '16px', color: 'var(--color-black)', lineHeight: 1.4 }}>
